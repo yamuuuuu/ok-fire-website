@@ -1,0 +1,1 @@
+import { failure,success } from '@/lib/http';import { db } from '@/lib/db';export async function GET(){try{const rows=await db().faq.findMany({where:{published:true,deletedAt:null},orderBy:[{sortOrder:'asc'},{id:'desc'}],select:{id:true,category:true,question:true,answer:true}});return success(rows.map(r=>({...r,id:r.id.toString()})));}catch(e){return failure(e);}}

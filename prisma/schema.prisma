@@ -1,0 +1,445 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  MANAGER
+}
+
+enum AdminStatus {
+  ACTIVE
+  INACTIVE
+  LOCKED
+}
+
+enum InquiryType {
+  FIRE_ELECTRIC
+  FIRE_CONSTRUCTION
+  FIRE_INSPECTION
+  REPAIR
+  ESTIMATE
+  ETC
+}
+
+enum InquiryStatus {
+  NEW
+  CONFIRMED
+  CONSULTING
+  VISIT_SCHEDULED
+  VISIT_COMPLETED
+  ESTIMATING
+  WORKING
+  COMPLETED
+  ON_HOLD
+  CANCELED
+}
+
+enum PreferredContactTime {
+  ANYTIME
+  MORNING
+  AFTERNOON
+  CUSTOM
+}
+
+enum UploaderType {
+  CUSTOMER
+  ADMIN
+}
+
+enum AttachmentType {
+  CUSTOMER
+  BEFORE
+  WORKING
+  AFTER
+  ESTIMATE
+  ETC
+}
+
+enum VisitStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELED
+}
+
+enum EstimateStatus {
+  DRAFT
+  SENT
+  APPROVED
+  REJECTED
+}
+
+enum WorkImageType {
+  BEFORE
+  WORKING
+  AFTER
+}
+
+model Admin {
+  id                                           BigInt                     @id @default(autoincrement())
+  name                                         String                     @db.VarChar(50)
+  email                                        String                     @unique @db.VarChar(255)
+  passwordHash                                 String                     @map("password_hash") @db.VarChar(255)
+  phone                                        String?                    @db.VarChar(20)
+  role                                         AdminRole                  @default(MANAGER)
+  status                                       AdminStatus                @default(ACTIVE)
+  lastLoginAt                                  DateTime?                  @map("last_login_at") @db.Timestamptz(3)
+  createdAt                                    DateTime                   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                                    DateTime                   @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt                                    DateTime?                  @map("deleted_at") @db.Timestamptz(3)
+  inquiriesByAssignedAdminId                   Inquiry[]                  @relation("InquiryAssignedAdminId")
+  inquiryAttachmentsByUploadedByAdminId        InquiryAttachment[]        @relation("InquiryAttachmentUploadedByAdminId")
+  uploadTicketsByCreatedByAdminId               UploadTicket[]             @relation("UploadTicketCreatedByAdminId")
+  inquiryNotesByAdminId                        InquiryNote[]              @relation("InquiryNoteAdminId")
+  inquiryStatusHistoriesByChangedByAdminId     InquiryStatusHistory[]     @relation("InquiryStatusHistoryChangedByAdminId")
+  inquiryAssignmentHistoriesByPreviousAdminId  InquiryAssignmentHistory[] @relation("InquiryAssignmentHistoryPreviousAdminId")
+  inquiryAssignmentHistoriesByNewAdminId       InquiryAssignmentHistory[] @relation("InquiryAssignmentHistoryNewAdminId")
+  inquiryAssignmentHistoriesByChangedByAdminId InquiryAssignmentHistory[] @relation("InquiryAssignmentHistoryChangedByAdminId")
+  visitsByAssignedAdminId                      Visit[]                    @relation("VisitAssignedAdminId")
+  visitsByCreatedByAdminId                     Visit[]                    @relation("VisitCreatedByAdminId")
+  estimatesByCreatedByAdminId                  Estimate[]                 @relation("EstimateCreatedByAdminId")
+  workCasesByCreatedByAdminId                  WorkCase[]                 @relation("WorkCaseCreatedByAdminId")
+  faqsByCreatedByAdminId                       Faq[]                      @relation("FaqCreatedByAdminId")
+  siteSettingsByUpdatedByAdminId               SiteSetting[]              @relation("SiteSettingUpdatedByAdminId")
+  adminActivityLogsByAdminId                   AdminActivityLog[]         @relation("AdminActivityLogAdminId")
+  sessions                                     AdminSession[]
+
+  @@map("admins")
+}
+
+model Inquiry {
+  id                                    BigInt                     @id @default(autoincrement())
+  inquiryNumber                         String                     @unique @map("inquiry_number") @db.VarChar(30)
+  submissionKeyHash                     String?                    @unique @map("submission_key_hash") @db.VarChar(64)
+  submissionPayloadHash                 String?                    @map("submission_payload_hash") @db.VarChar(64)
+  privacyPolicyVersion                  String?                    @map("privacy_policy_version") @db.VarChar(100)
+  preferredWorkDate                     DateTime?                  @map("preferred_work_date") @db.Date
+  customerName                          String                     @map("customer_name") @db.VarChar(50)
+  phone                                 String                     @db.VarChar(20)
+  companyName                           String?                    @map("company_name") @db.VarChar(100)
+  postalCode                            String?                    @map("postal_code") @db.VarChar(10)
+  address                               String                     @db.VarChar(255)
+  addressDetail                         String?                    @map("address_detail") @db.VarChar(255)
+  inquiryType                           InquiryType                @map("inquiry_type")
+  description                           String                     @db.Text
+  preferredContactTime                  PreferredContactTime?      @map("preferred_contact_time")
+  preferredContactDetail                String?                    @map("preferred_contact_detail") @db.VarChar(100)
+  status                                InquiryStatus              @default(NEW)
+  assignedAdminId                       BigInt?                    @map("assigned_admin_id")
+  privacyAgreed                         Boolean                    @map("privacy_agreed")
+  privacyAgreedAt                       DateTime                   @map("privacy_agreed_at") @db.Timestamptz(3)
+  source                                String                     @default("WEB") @db.VarChar(30)
+  createdAt                             DateTime                   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                             DateTime                   @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt                             DateTime?                  @map("deleted_at") @db.Timestamptz(3)
+  assignedAdmin                         Admin?                     @relation("InquiryAssignedAdminId", fields: [assignedAdminId], references: [id], onDelete: Restrict)
+  inquiryAttachmentsByInquiryId         InquiryAttachment[]        @relation("InquiryAttachmentInquiryId")
+  inquiryNotesByInquiryId               InquiryNote[]              @relation("InquiryNoteInquiryId")
+  inquiryStatusHistoriesByInquiryId     InquiryStatusHistory[]     @relation("InquiryStatusHistoryInquiryId")
+  inquiryAssignmentHistoriesByInquiryId InquiryAssignmentHistory[] @relation("InquiryAssignmentHistoryInquiryId")
+  visitsByInquiryId                     Visit[]                    @relation("VisitInquiryId")
+  uploadTickets                         UploadTicket[]
+  estimatesByInquiryId                  Estimate[]                 @relation("EstimateInquiryId")
+
+  @@index([assignedAdminId])
+  @@index([phone])
+  @@index([status])
+  @@index([createdAt])
+  @@index([inquiryType])
+  @@index([status, createdAt])
+  @@index([assignedAdminId, status])
+  @@map("inquiries")
+}
+
+model InquiryAttachment {
+  id                BigInt         @id @default(autoincrement())
+  inquiryId         BigInt         @map("inquiry_id")
+  uploadedByAdminId BigInt?        @map("uploaded_by_admin_id")
+  uploaderType      UploaderType   @map("uploader_type")
+  attachmentType    AttachmentType @map("attachment_type")
+  originalName      String         @map("original_name") @db.VarChar(255)
+  storedName        String         @map("stored_name") @db.VarChar(255)
+  storageKey        String         @map("storage_key") @db.VarChar(500)
+  mimeType          String         @map("mime_type") @db.VarChar(100)
+  fileSize          BigInt         @map("file_size")
+  sortOrder         Int            @default(0) @map("sort_order")
+  estimateId        BigInt?        @map("estimate_id")
+  createdAt         DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  deletedAt         DateTime?      @map("deleted_at") @db.Timestamptz(3)
+  inquiry           Inquiry        @relation("InquiryAttachmentInquiryId", fields: [inquiryId], references: [id], onDelete: Restrict)
+  uploadedByAdmin   Admin?         @relation("InquiryAttachmentUploadedByAdminId", fields: [uploadedByAdminId], references: [id], onDelete: Restrict)
+  uploadTicket      UploadTicket?
+  estimate          Estimate?      @relation("InquiryAttachmentEstimateId", fields: [estimateId], references: [id], onDelete: Restrict)
+
+  @@index([inquiryId])
+  @@index([uploadedByAdminId])
+  @@index([estimateId])
+  @@map("inquiry_attachments")
+}
+
+model InquiryNote {
+  id        BigInt    @id @default(autoincrement())
+  inquiryId BigInt    @map("inquiry_id")
+  adminId   BigInt    @map("admin_id")
+  content   String    @db.Text
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(3)
+  inquiry   Inquiry   @relation("InquiryNoteInquiryId", fields: [inquiryId], references: [id], onDelete: Restrict)
+  admin     Admin     @relation("InquiryNoteAdminId", fields: [adminId], references: [id], onDelete: Restrict)
+
+  @@index([inquiryId])
+  @@index([adminId])
+  @@index([inquiryId, createdAt])
+  @@map("inquiry_notes")
+}
+
+model InquiryStatusHistory {
+  id               BigInt         @id @default(autoincrement())
+  inquiryId        BigInt         @map("inquiry_id")
+  previousStatus   InquiryStatus? @map("previous_status")
+  newStatus        InquiryStatus  @map("new_status")
+  changedByAdminId BigInt?        @map("changed_by_admin_id")
+  memo             String?        @db.VarChar(500)
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  inquiry          Inquiry        @relation("InquiryStatusHistoryInquiryId", fields: [inquiryId], references: [id], onDelete: Restrict)
+  changedByAdmin   Admin?         @relation("InquiryStatusHistoryChangedByAdminId", fields: [changedByAdminId], references: [id], onDelete: Restrict)
+
+  @@index([inquiryId])
+  @@index([changedByAdminId])
+  @@index([inquiryId, createdAt])
+  @@map("inquiry_status_histories")
+}
+
+model InquiryAssignmentHistory {
+  id               BigInt   @id @default(autoincrement())
+  inquiryId        BigInt   @map("inquiry_id")
+  previousAdminId  BigInt?  @map("previous_admin_id")
+  newAdminId       BigInt?  @map("new_admin_id")
+  changedByAdminId BigInt   @map("changed_by_admin_id")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  inquiry          Inquiry  @relation("InquiryAssignmentHistoryInquiryId", fields: [inquiryId], references: [id], onDelete: Restrict)
+  previousAdmin    Admin?   @relation("InquiryAssignmentHistoryPreviousAdminId", fields: [previousAdminId], references: [id], onDelete: Restrict)
+  newAdmin         Admin?   @relation("InquiryAssignmentHistoryNewAdminId", fields: [newAdminId], references: [id], onDelete: Restrict)
+  changedByAdmin   Admin    @relation("InquiryAssignmentHistoryChangedByAdminId", fields: [changedByAdminId], references: [id], onDelete: Restrict)
+
+  @@index([inquiryId])
+  @@index([previousAdminId])
+  @@index([newAdminId])
+  @@index([changedByAdminId])
+  @@map("inquiry_assignment_histories")
+}
+
+model Visit {
+  id               BigInt      @id @default(autoincrement())
+  inquiryId        BigInt      @map("inquiry_id")
+  assignedAdminId  BigInt?     @map("assigned_admin_id")
+  visitDate        DateTime    @map("visit_date") @db.Date
+  visitTime        DateTime?   @map("visit_time") @db.Time(0)
+  address          String      @db.VarChar(255)
+  addressDetail    String?     @map("address_detail") @db.VarChar(255)
+  memo             String?     @db.Text
+  status           VisitStatus @default(SCHEDULED)
+  createdByAdminId BigInt      @map("created_by_admin_id")
+  createdAt        DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt        DateTime?   @map("deleted_at") @db.Timestamptz(3)
+  inquiry          Inquiry     @relation("VisitInquiryId", fields: [inquiryId], references: [id], onDelete: Restrict)
+  assignedAdmin    Admin?      @relation("VisitAssignedAdminId", fields: [assignedAdminId], references: [id], onDelete: Restrict)
+  createdByAdmin   Admin       @relation("VisitCreatedByAdminId", fields: [createdByAdminId], references: [id], onDelete: Restrict)
+
+  @@index([inquiryId])
+  @@index([assignedAdminId])
+  @@index([createdByAdminId])
+  @@index([visitDate])
+  @@index([assignedAdminId, visitDate])
+  @@map("visits")
+}
+
+model Estimate {
+  id                             BigInt              @id @default(autoincrement())
+  inquiryId                      BigInt              @map("inquiry_id")
+  amount                         Decimal?            @db.Decimal(15, 2)
+  memo                           String?             @db.Text
+  status                         EstimateStatus      @default(DRAFT)
+  createdByAdminId               BigInt              @map("created_by_admin_id")
+  createdAt                      DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                      DateTime            @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt                      DateTime?           @map("deleted_at") @db.Timestamptz(3)
+  inquiryAttachmentsByEstimateId InquiryAttachment[] @relation("InquiryAttachmentEstimateId")
+  uploadTicketsByEstimateId       UploadTicket[]      @relation("UploadTicketEstimateId")
+  inquiry                        Inquiry             @relation("EstimateInquiryId", fields: [inquiryId], references: [id], onDelete: Restrict)
+  createdByAdmin                 Admin               @relation("EstimateCreatedByAdminId", fields: [createdByAdminId], references: [id], onDelete: Restrict)
+
+  @@index([inquiryId])
+  @@index([createdByAdminId])
+  @@map("estimates")
+}
+
+model WorkCase {
+  id                         BigInt          @id @default(autoincrement())
+  title                      String          @db.VarChar(200)
+  slug                       String          @unique @db.VarChar(255)
+  category                   InquiryType
+  location                   String?         @db.VarChar(100)
+  buildingType               String?         @map("building_type") @db.VarChar(50)
+  workDate                   DateTime?       @map("work_date") @db.Date
+  summary                    String?         @db.VarChar(500)
+  description                String          @db.Text
+  thumbnailStorageKey        String?         @map("thumbnail_storage_key") @db.VarChar(500)
+  published                  Boolean         @default(false)
+  publishedAt                DateTime?       @map("published_at") @db.Timestamptz(3)
+  createdByAdminId           BigInt          @map("created_by_admin_id")
+  createdAt                  DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                  DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt                  DateTime?       @map("deleted_at") @db.Timestamptz(3)
+  createdByAdmin             Admin           @relation("WorkCaseCreatedByAdminId", fields: [createdByAdminId], references: [id], onDelete: Restrict)
+  workCaseImagesByWorkCaseId WorkCaseImage[] @relation("WorkCaseImageWorkCaseId")
+  uploadTicketsByWorkCaseId   UploadTicket[]  @relation("UploadTicketWorkCaseId")
+
+  @@index([createdByAdminId])
+  @@index([published, publishedAt])
+  @@index([category])
+  @@map("work_cases")
+}
+
+model WorkCaseImage {
+  id         BigInt        @id @default(autoincrement())
+  workCaseId BigInt        @map("work_case_id")
+  imageType  WorkImageType @map("image_type")
+  storageKey String        @map("storage_key") @db.VarChar(500)
+  altText    String?       @map("alt_text") @db.VarChar(255)
+  sortOrder  Int           @default(0) @map("sort_order")
+  createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  deletedAt  DateTime?     @map("deleted_at") @db.Timestamptz(3)
+  workCase   WorkCase      @relation("WorkCaseImageWorkCaseId", fields: [workCaseId], references: [id], onDelete: Restrict)
+
+  @@index([workCaseId])
+  @@map("work_case_images")
+}
+
+model Faq {
+  id               BigInt    @id @default(autoincrement())
+  category         String?   @db.VarChar(30)
+  question         String    @db.VarChar(500)
+  answer           String    @db.Text
+  sortOrder        Int       @default(0) @map("sort_order")
+  published        Boolean   @default(false)
+  createdByAdminId BigInt    @map("created_by_admin_id")
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt        DateTime? @map("deleted_at") @db.Timestamptz(3)
+  createdByAdmin   Admin     @relation("FaqCreatedByAdminId", fields: [createdByAdminId], references: [id], onDelete: Restrict)
+
+  @@index([createdByAdminId])
+  @@map("faqs")
+}
+
+model SiteSetting {
+  id               BigInt   @id @default(autoincrement())
+  settingKey       String   @unique @map("setting_key") @db.VarChar(100)
+  settingValue     String?  @map("setting_value") @db.Text
+  valueType        String   @map("value_type") @db.VarChar(20)
+  description      String?  @db.VarChar(255)
+  updatedByAdminId BigInt?  @map("updated_by_admin_id")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  updatedByAdmin   Admin?   @relation("SiteSettingUpdatedByAdminId", fields: [updatedByAdminId], references: [id], onDelete: Restrict)
+
+  @@index([updatedByAdminId])
+  @@map("site_settings")
+}
+
+model AdminActivityLog {
+  id         BigInt   @id @default(autoincrement())
+  adminId    BigInt?  @map("admin_id")
+  actionType String   @map("action_type") @db.VarChar(50)
+  targetType String?  @map("target_type") @db.VarChar(50)
+  targetId   BigInt?  @map("target_id")
+  metadata   Json?    @db.JsonB
+  ipAddress  String?  @map("ip_address") @db.VarChar(50)
+  userAgent  String?  @map("user_agent") @db.Text
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  admin      Admin?   @relation("AdminActivityLogAdminId", fields: [adminId], references: [id], onDelete: Restrict)
+
+  @@index([adminId])
+  @@index([adminId, createdAt])
+  @@map("admin_activity_logs")
+}
+
+// Only SHA-256 hashes of 256-bit random session tokens are persisted.
+model AdminSession {
+  id        BigInt   @id @default(autoincrement())
+  tokenHash String   @unique @map("token_hash") @db.VarChar(64)
+  adminId   BigInt   @map("admin_id")
+  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Restrict)
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([adminId])
+  @@index([expiresAt])
+  @@map("admin_sessions")
+}
+
+// Database-backed fixed-window limiter shared by all Vercel instances.
+model AuthRateLimit {
+  key       String   @id @db.VarChar(64)
+  count     Int
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(3)
+
+  @@index([expiresAt])
+  @@map("auth_rate_limits")
+}
+
+// Daily counters are incremented in the same transaction as inquiry and history.
+model InquiryCounter {
+  day   String @id @db.VarChar(8)
+  value Int
+
+  @@map("inquiry_counters")
+}
+
+model PublicRateLimit {
+  key       String   @id @db.VarChar(64)
+  count     Int
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(3)
+
+  @@index([expiresAt])
+  @@map("public_rate_limits")
+}
+
+model UploadTicket {
+  id           String             @id @default(uuid()) @db.Uuid
+  inquiryId    BigInt?            @map("inquiry_id")
+  inquiry      Inquiry?           @relation(fields: [inquiryId], references: [id], onDelete: Restrict)
+  workCaseId   BigInt?            @map("work_case_id")
+  workCase     WorkCase?          @relation("UploadTicketWorkCaseId", fields: [workCaseId], references: [id], onDelete: Restrict)
+  attachmentType AttachmentType   @default(CUSTOMER) @map("attachment_type")
+  createdByAdminId BigInt?        @map("created_by_admin_id")
+  createdByAdmin   Admin?         @relation("UploadTicketCreatedByAdminId", fields: [createdByAdminId], references: [id], onDelete: Restrict)
+  estimateId       BigInt?        @map("estimate_id")
+  estimate         Estimate?      @relation("UploadTicketEstimateId", fields: [estimateId], references: [id], onDelete: Restrict)
+  clientId     String             @map("client_id") @db.Uuid
+  originalName String             @map("original_name") @db.VarChar(255)
+  mimeType     String             @map("mime_type") @db.VarChar(100)
+  fileSize     Int                @map("file_size")
+  sha256       String             @db.VarChar(64)
+  storageKey   String             @unique @map("storage_key") @db.VarChar(500)
+  attachmentId BigInt?            @unique @map("attachment_id")
+  attachment   InquiryAttachment? @relation(fields: [attachmentId], references: [id], onDelete: Restrict)
+  rejectedAt   DateTime?          @map("rejected_at") @db.Timestamptz(3)
+  expiresAt    DateTime           @map("expires_at") @db.Timestamptz(3)
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@unique([inquiryId, clientId])
+  @@index([inquiryId, expiresAt])
+  @@index([workCaseId, expiresAt])
+  @@index([createdByAdminId])
+  @@index([estimateId])
+  @@map("upload_tickets")
+}

@@ -1,0 +1,3 @@
+import { ApiError,failure,readJson,requireSameOrigin,success } from '@/lib/http'; import { requireAdmin } from '@/lib/session'; import { createWork,listWorks } from '@/services/cms'; import { workSchema } from '@/validations/cms';
+export async function GET(){try{await requireAdmin();return success(await listWorks());}catch(e){return failure(e);}}
+export async function POST(r:Request){try{requireSameOrigin(r);const a=await requireAdmin();const p=workSchema.safeParse(await readJson(r));if(!p.success)throw new ApiError(422,'VALIDATION_ERROR','작업사례 입력값을 확인해주세요.');return success(await createWork(a.id,p.data),201);}catch(e){return failure(e);}}

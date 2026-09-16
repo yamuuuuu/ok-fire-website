@@ -1,0 +1,11 @@
+import { z } from 'zod';
+const id = z.string().regex(/^[1-9]\d{0,18}$/).refine(value => BigInt(value) <= BigInt('9223372036854775807'));
+const text = (max: number) => z.preprocess(value => typeof value === 'string' && value.trim() === '' ? undefined : value, z.string().trim().min(1).max(max).optional());
+const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(value => !Number.isNaN(Date.parse(`${value}T00:00:00Z`)));
+const time = z.preprocess(value => value === '' || value === null ? undefined : value, z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).optional());
+export const visitCreateSchema = z.object({ visitDate: date, visitTime: time, assignedAdminId: z.union([id, z.null()]).optional(), address: z.string().trim().min(1).max(255), addressDetail: text(255), memo: text(5000), changeInquiryStatus: z.boolean().default(true) }).strict();
+export const visitUpdateSchema = visitCreateSchema.omit({ changeInquiryStatus: true }).partial().refine(value => Object.keys(value).length > 0);
+export const visitStatusSchema = z.object({ status: z.enum(['SCHEDULED', 'COMPLETED', 'CANCELED']), changeInquiryStatus: z.boolean().default(true) }).strict();
+export const estimateCreateSchema = z.object({ amount: z.union([z.number().nonnegative().max(9999999999999.99), z.string().regex(/^\d{1,13}(\.\d{1,2})?$/)]).optional(), memo: text(5000), status: z.enum(['DRAFT', 'SENT', 'APPROVED', 'REJECTED']).default('DRAFT') }).strict();
+export const estimateUpdateSchema = estimateCreateSchema.partial().refine(value => Object.keys(value).length > 0);
+export { id as entityId };

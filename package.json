@@ -1,0 +1,58 @@
+{
+  "name": "okfire",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "dev:demo": "tsx scripts/dev-demo.ts",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "prisma generate && next typegen && tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "test:integration": "tsx scripts/test-integration.ts",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio",
+    "storage:cleanup": "tsx scripts/storage-cleanup.ts",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1132.0",
+    "@aws-sdk/s3-request-presigner": "^3.1132.0",
+    "@prisma/adapter-pg": "^7.0.0",
+    "@prisma/client": "^7.0.0",
+    "dotenv": "^17.2.0",
+    "file-type": "^22.1.0",
+    "libheif-js": "^1.23.2",
+    "next": "^16.0.0",
+    "pg": "^8.16.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "server-only": "^0.0.1",
+    "sharp": "^0.35.4",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@tailwindcss/postcss": "^4.1.0",
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.15.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/s3rver": "^3.7.4",
+    "embedded-postgres": "^18.4.0-beta.17",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^16.0.0",
+    "prisma": "^7.0.0",
+    "s3rver": "^3.7.1",
+    "tailwindcss": "^4.1.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}

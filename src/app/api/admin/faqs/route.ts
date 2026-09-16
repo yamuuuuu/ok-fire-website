@@ -1,0 +1,3 @@
+import { ApiError,failure,readJson,requireSameOrigin,success } from '@/lib/http'; import { requireAdmin } from '@/lib/session'; import { createFaq,listFaqs } from '@/services/cms'; import { faqSchema } from '@/validations/cms';
+export async function GET(){try{await requireAdmin();return success(await listFaqs());}catch(e){return failure(e);}}
+export async function POST(r:Request){try{requireSameOrigin(r);const a=await requireAdmin();const p=faqSchema.safeParse(await readJson(r));if(!p.success)throw new ApiError(422,'VALIDATION_ERROR','FAQ 입력값을 확인해주세요.');return success(await createFaq(a.id,p.data),201);}catch(e){return failure(e);}}

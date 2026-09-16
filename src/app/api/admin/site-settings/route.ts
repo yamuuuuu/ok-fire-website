@@ -1,0 +1,3 @@
+import { ApiError,failure,readJson,requireSameOrigin,success } from '@/lib/http'; import { requireAdmin } from '@/lib/session'; import { listSettings,saveSettings } from '@/services/cms'; import { settingsSchema } from '@/validations/cms';
+export async function GET(){try{await requireAdmin('SUPER_ADMIN');return success(await listSettings());}catch(e){return failure(e);}}
+export async function PATCH(r:Request){try{requireSameOrigin(r);const a=await requireAdmin('SUPER_ADMIN');const p=settingsSchema.safeParse(await readJson(r,65536));if(!p.success)throw new ApiError(422,'VALIDATION_ERROR','사이트 설정값을 확인해주세요.');return success(await saveSettings(a.id,p.data.settings));}catch(e){return failure(e);}}

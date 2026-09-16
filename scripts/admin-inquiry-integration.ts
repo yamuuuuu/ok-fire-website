@@ -1,0 +1,131 @@
+import assert from 'node:assert/strict';
+import { createHash, randomUUID } from 'node:crypto';
+import { join } from 'node:path';
+import type { APIRequestContext, Browser } from '@playwright/test';
+import type { Pool } from 'pg';
+
+type Login = () => Promise<{ status(): number }>;
+
+export async function testAdminInquiryApi(api: APIRequestContext, pool: Pool, origin: string, login: Login) {
+  const attached = (await pool.query('SELECT inquiry_id FROM inquiry_attachments WHERE deleted_at IS NULL ORDER BY id LIMIT 1')).rows[0];
+  assert.ok(attached, 'Phase 4 detail test needs an uploaded image');
+  const adminId = (await pool.query("SELECT id FROM admins WHERE status='ACTIVE' AND deleted_at IS NULL ORDER BY id LIMIT 1")).rows[0].id;
+  await pool.query(`UPDATE inquiries SET customer_name='Phase4고객', phone='01098765432', company_name='관리 대상 빌딩', address='서울특별시 중구 세종대로 110', address_detail='지하 1층', inquiry_type='FIRE_INSPECTION', description='관리자 상세에서 확인할 소방점검 문의입니다.', status='CONSULTING', assigned_admin_id=$1, updated_at=now() WHERE id=$2`, [adminId, attached.inquiry_id]);
+  await pool.query(`INSERT INTO inquiry_status_histories (inquiry_id, previous_status, new_status, changed_by_admin_id, memo) VALUES ($1, 'NEW', 'CONSULTING', $2, 'Phase 4 조회 테스트')`, [attached.inquiry_id, adminId]);
+  await pool.query(`INSERT INTO inquiries (inquiry_number, customer_name, phone, address, inquiry_type, description, privacy_agreed, privacy_agreed_at, status, source, created_at, updated_at)
+    SELECT 'IT-PAGE-' || lpad(g::text, 3, '0'), '페이지 고객 ' || g, '01010002000', '서울 테스트 주소', 'REPAIR', '페이지네이션 검증', true, now(), 'NEW', 'TEST', now() - (g || ' minutes')::interval, now() FROM generate_series(1, 22) g`);
+  await pool.query("UPDATE inquiries SET deleted_at=now(), customer_name='삭제된Phase4고객' WHERE inquiry_number='IT-PAGE-022'");
+
+  assert.equal((await api.get('/api/admin/inquiries')).status(), 401);
+  assert.equal((await api.get(`/api/admin/inquiries/${attached.inquiry_id}`)).status(), 401);
+  assert.equal((await login()).status(), 200);
+  const keyword = await api.get('/api/admin/inquiries?keyword=Phase4고객');
+  assert.equal(keyword.status(), 200, await keyword.text());
+  const list = (await keyword.json()).data;
+  assert.equal(list.items.length, 1); assert.equal(list.items[0].id, String(attached.inquiry_id));
+  assert.ok(list.items[0].attachmentCount >= 1); assert.equal(list.items[0].status, 'CONSULTING');
+  assert.equal(typeof list.items[0].assignedAdmin.id, 'string');
+  const phone = await api.get('/api/admin/inquiries?keyword=010-9876-5432');
+  assert.equal((await phone.json()).data.items[0].id, String(attached.inquiry_id));
+  const day = (await pool.query("SELECT to_char(now() AT TIME ZONE 'Asia/Seoul', 'YYYY-MM-DD') AS day")).rows[0].day;
+  const filtered = await api.get(`/api/admin/inquiries?status=CONSULTING&inquiryType=FIRE_INSPECTION&assignedAdminId=${adminId}&from=${day}&to=${day}`);
+  assert.equal((await filtered.json()).data.items.length, 1);
+  const paged = (await (await api.get('/api/admin/inquiries?page=2&pageSize=20&sort=createdAt&order=desc')).json()).data;
+  assert.equal(paged.pagination.page, 2); assert.equal(paged.items.length > 0, true);
+  for (const query of ['pageSize=21', 'status=INVALID', 'from=2026-09-20&to=2026-09-01', 'unexpected=value']) assert.equal((await api.get(`/api/admin/inquiries?${query}`)).status(), 422);
+  const deleted = (await (await api.get('/api/admin/inquiries?keyword=삭제된Phase4고객')).json()).data;
+  assert.equal(deleted.items.length, 0);
+
+  const detailResponse = await api.get(`/api/admin/inquiries/${attached.inquiry_id}`);
+  assert.equal(detailResponse.status(), 200, await detailResponse.text());
+  const detail = (await detailResponse.json()).data;
+  assert.equal(detail.customerName, 'Phase4고객'); assert.ok(detail.attachments.length >= 1);
+  assert.ok(detail.statusHistory.some((item: { newStatus: string }) => item.newStatus === 'CONSULTING'));
+  assert.ok(!('submissionKeyHash' in detail)); assert.ok(!('submissionPayloadHash' in detail));
+  assert.equal((await api.get('/api/admin/inquiries/not-a-number')).status(), 404);
+  assert.equal((await api.get('/api/admin/inquiries/9223372036854775808')).status(), 404);
+  assert.equal((await pool.query("SELECT count(*) FROM admin_activity_logs WHERE action_type='INQUIRY_VIEW' AND target_id=$1", [attached.inquiry_id])).rows[0].count, '1');
+  assert.ok(Number((await pool.query("SELECT count(*) FROM admin_activity_logs WHERE action_type='INQUIRY_LIST_VIEW'")).rows[0].count) >= 1);
+  assert.equal((await api.patch(`/api/admin/inquiries/${attached.inquiry_id}/status`, { data: { status: 'CONFIRMED' } })).status(), 403);
+  assert.equal((await api.patch(`/api/admin/inquiries/${attached.inquiry_id}/status`, { headers: { origin }, data: { status: 'INVALID' } })).status(), 422);
+  const statusChanged = await api.patch(`/api/admin/inquiries/${attached.inquiry_id}/status`, { headers: { origin }, data: { status: 'CONFIRMED', memo: '고객에게 접수 확인을 전달했습니다.' } });
+  assert.equal(statusChanged.status(), 200); assert.equal((await statusChanged.json()).data.changed, true);
+  assert.equal((await pool.query('SELECT status FROM inquiries WHERE id=$1', [attached.inquiry_id])).rows[0].status, 'CONFIRMED');
+  assert.equal((await pool.query("SELECT memo FROM inquiry_status_histories WHERE inquiry_id=$1 AND new_status='CONFIRMED'", [attached.inquiry_id])).rows[0].memo, '고객에게 접수 확인을 전달했습니다.');
+  const unchanged = await api.patch(`/api/admin/inquiries/${attached.inquiry_id}/status`, { headers: { origin }, data: { status: 'CONFIRMED' } });
+  assert.equal((await unchanged.json()).data.changed, false);
+  const unassign = await api.patch(`/api/admin/inquiries/${attached.inquiry_id}/assignee`, { headers: { origin }, data: { adminId: null } });
+  assert.equal((await unassign.json()).data.changed, true);
+  const reassign = await api.patch(`/api/admin/inquiries/${attached.inquiry_id}/assignee`, { headers: { origin }, data: { adminId: String(adminId) } });
+  assert.equal((await reassign.json()).data.assignedAdminId, String(adminId));
+  assert.equal((await api.patch(`/api/admin/inquiries/${attached.inquiry_id}/assignee`, { headers: { origin }, data: { adminId: '999999' } })).status(), 422);
+  const createNote = await api.post(`/api/admin/inquiries/${attached.inquiry_id}/notes`, { headers: { origin }, data: { content: '고객이 오후 연락을 요청했습니다.' } });
+  assert.equal(createNote.status(), 201);
+  const noteId = (await pool.query('SELECT id FROM inquiry_notes WHERE inquiry_id=$1 AND deleted_at IS NULL ORDER BY id DESC LIMIT 1', [attached.inquiry_id])).rows[0].id;
+  assert.equal((await api.patch(`/api/admin/inquiries/${attached.inquiry_id}/notes/${noteId}`, { headers: { origin }, data: { content: '고객이 오후 3시 이후 연락을 요청했습니다.' } })).status(), 200);
+  const timeline = (await (await api.get(`/api/admin/inquiries/${attached.inquiry_id}/timeline`)).json()).data.events;
+  assert.ok(timeline.some((event: { type: string }) => event.type === 'STATUS'));
+  assert.ok(timeline.some((event: { type: string }) => event.type === 'ASSIGNMENT'));
+  assert.ok(timeline.some((event: { type: string; content?: string }) => event.type === 'NOTE' && event.content?.includes('오후 3시')));
+  assert.equal((await api.delete(`/api/admin/inquiries/${attached.inquiry_id}/notes/${noteId}`, { headers: { origin } })).status(), 200);
+  assert.equal((await pool.query('SELECT deleted_at FROM inquiry_notes WHERE id=$1', [noteId])).rows[0].deleted_at === null, false);
+  assert.ok(Number((await pool.query("SELECT count(*) FROM admin_activity_logs WHERE action_type IN ('INQUIRY_STATUS_CHANGED', 'INQUIRY_ASSIGNEE_CHANGED', 'INQUIRY_NOTE_CREATED', 'INQUIRY_NOTE_UPDATED', 'INQUIRY_NOTE_DELETED')")).rows[0].count) >= 5);
+  const visit = await api.post(`/api/admin/inquiries/${attached.inquiry_id}/visits`, { headers: { origin }, data: { visitDate: day, visitTime: '14:00', assignedAdminId: String(adminId), address: '서울특별시 중구 세종대로 110', addressDetail: '지하 1층', memo: '통합 테스트 방문', changeInquiryStatus: true } });
+  assert.equal(visit.status(), 201, await visit.text()); const visitId = (await visit.json()).data.id;
+  assert.equal((await api.patch(`/api/admin/visits/${visitId}/status`, { headers: { origin }, data: { status: 'COMPLETED', changeInquiryStatus: true } })).status(), 200);
+  const schedule = await api.get(`/api/admin/visits?from=${day}&to=${day}`); assert.equal(schedule.status(), 200); assert.ok((await schedule.json()).data.items.some((item: { id: string }) => item.id === visitId));
+  const estimate = await api.post(`/api/admin/inquiries/${attached.inquiry_id}/estimates`, { headers: { origin }, data: { amount: 500000, memo: '통합 테스트 견적', status: 'DRAFT' } }); assert.equal(estimate.status(), 201); const estimateId = (await estimate.json()).data.id;
+  assert.equal((await api.patch(`/api/admin/estimates/${estimateId}`, { headers: { origin }, data: { status: 'SENT' } })).status(), 200);
+  const pdf = Buffer.from('%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF\n'); const upload = await api.post(`/api/admin/inquiries/${attached.inquiry_id}/attachments`, { headers: { origin }, data: { clientId: randomUUID(), originalName: 'estimate.pdf', mimeType: 'application/pdf', fileSize: pdf.length, sha256: createHash('sha256').update(pdf).digest('hex'), attachmentType: 'ESTIMATE', estimateId } }); assert.equal(upload.status(), 201, await upload.text()); const ticket = (await upload.json()).data;
+  assert.ok((await api.put(ticket.url, { headers: ticket.headers, data: pdf })).ok()); const complete = await api.post(`/api/admin/inquiries/${attached.inquiry_id}/attachments/${ticket.uploadId}/complete`, { headers: { origin } }); assert.equal(complete.status(), 200, await complete.text()); const attachmentId = (await complete.json()).data.id;
+  const attachmentUrl = await api.get(`/api/admin/attachments/${attachmentId}/url`); assert.equal(attachmentUrl.status(), 200); assert.ok((await attachmentUrl.json()).data.url);
+  assert.equal((await api.delete(`/api/admin/attachments/${attachmentId}`, { headers: { origin } })).status(), 200); assert.equal((await api.delete(`/api/admin/estimates/${estimateId}`, { headers: { origin } })).status(), 200);
+  console.log('PASS visit schedule/completion, estimate lifecycle and protected PDF attachment');
+  const work = await api.post('/api/admin/works', { headers: { origin }, data: { title: '통합 테스트 작업사례', slug: 'integration-work', category: 'FIRE_ELECTRIC', location: '서울', buildingType: '상가', description: '공개 작업사례 통합 테스트', published: true } }); assert.equal(work.status(), 201, await work.text()); const workId = (await work.json()).data.id;
+  assert.equal((await api.get('/api/works')).status(), 200); assert.equal((await api.get('/api/works/integration-work')).status(), 200); assert.equal((await api.patch(`/api/admin/works/${workId}`, { headers: { origin }, data: { summary: '수정된 요약' } })).status(), 200);
+  const faq = await api.post('/api/admin/faqs', { headers: { origin }, data: { question: '통합 테스트 FAQ?', answer: '통합 테스트 답변입니다.', published: true, sortOrder: 0 } }); assert.equal(faq.status(), 201); const faqId = (await faq.json()).data.id; assert.equal((await api.get('/api/faqs')).status(), 200); assert.equal((await api.patch(`/api/admin/faqs/${faqId}`, { headers: { origin }, data: { published: false } })).status(), 200);
+  assert.equal((await api.patch('/api/admin/site-settings', { headers: { origin }, data: { settings: [{ key: 'COMPANY_NAME', value: 'OK소방', valueType: 'TEXT' }] } })).status(), 200); assert.equal((await api.get('/api/site-settings/public')).status(), 200);
+  const user = await api.post('/api/admin/users', { headers: { origin }, data: { name: 'CMS 매니저', email: 'cms-manager@example.com', password: 'cms-manager-password-1234', role: 'MANAGER' } }); assert.equal(user.status(), 201); const userId = (await user.json()).data.id; assert.equal((await api.patch(`/api/admin/users/${userId}`, { headers: { origin }, data: { status: 'INACTIVE' } })).status(), 200); assert.equal((await api.post(`/api/admin/users/${userId}/reset-password`, { headers: { origin }, data: { password: 'new-cms-manager-password-1234' } })).status(), 200);
+  assert.equal((await api.delete(`/api/admin/faqs/${faqId}`, { headers: { origin } })).status(), 200); assert.equal((await api.delete(`/api/admin/works/${workId}`, { headers: { origin } })).status(), 200); console.log('PASS CMS work/FAQ CRUD, public publishing, site settings and SUPER_ADMIN user management');
+  await api.post('/api/admin/auth/logout', { headers: { origin } });
+  console.log('PASS protected inquiry list/detail API, search, filters, pagination, operations, timeline, soft delete and access audit');
+  return String(attached.inquiry_id);
+}
+
+export async function testAdminInquiryBrowser(browser: Browser, origin: string, email: string, password: string, inquiryId: string, dir: string) {
+  const context = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const page = await context.newPage(); const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  const noOverflow = async () => assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  try {
+    await page.goto(`${origin}/admin/login`);
+    await page.getByLabel('이메일').fill(email); await page.getByLabel('비밀번호', { exact: true }).fill(password);
+    await page.getByRole('button', { name: '로그인', exact: true }).click(); await page.waitForURL(`${origin}/admin`);
+    await page.goto(`${origin}/admin/inquiries?keyword=Phase4고객`);
+    assert.ok(await page.getByRole('heading', { name: '접수관리' }).isVisible());
+    assert.ok(await page.getByRole('link', { name: '접수', exact: true }).last().getAttribute('aria-current'));
+    assert.ok(await page.getByRole('heading', { name: 'Phase4고객', exact: true }).isVisible());
+    assert.equal(await page.getByRole('link', { name: '010-9876-5432' }).first().getAttribute('href'), 'tel:01098765432');
+    await noOverflow(); await page.screenshot({ path: join(dir, 'inquiries-mobile.png'), fullPage: true });
+    await page.getByRole('link', { name: '상세', exact: true }).first().click(); await page.waitForURL(`${origin}/admin/inquiries/${inquiryId}`);
+    assert.ok(await page.getByRole('heading', { name: 'Phase4고객' }).isVisible());
+    assert.ok(await page.getByText('서울특별시 중구 세종대로 110 지하 1층', { exact: true }).first().isVisible());
+    assert.ok((await page.getByRole('link', { name: '지도에서 보기 ↗' }).getAttribute('href'))?.startsWith('https://map.naver.com/p/search/'));
+    const image = page.getByAltText('고객 현장 사진 1'); await image.waitFor();
+    assert.ok(await image.evaluate((element: HTMLImageElement) => element.complete && element.naturalWidth > 0));
+    await page.getByRole('combobox', { name: '상태 변경' }).selectOption('ON_HOLD');
+    await page.getByLabel(/변경 메모/).fill('브라우저에서 상태 변경을 확인했습니다.');
+    await page.getByRole('button', { name: '상태 저장', exact: true }).click();
+    await page.getByRole('status').filter({ hasText: '상태를 저장했습니다.' }).waitFor();
+    await page.getByLabel('새 상담메모').fill('브라우저에서 등록한 상담메모입니다.');
+    await page.getByRole('button', { name: '메모 등록', exact: true }).click();
+    await page.getByRole('status').filter({ hasText: '메모를 등록했습니다.' }).waitFor();
+    await page.getByText('브라우저에서 등록한 상담메모입니다.', { exact: true }).waitFor();
+    await noOverflow(); await page.screenshot({ path: join(dir, 'inquiry-detail-mobile.png'), fullPage: true });
+    await page.setViewportSize({ width: 1440, height: 1000 }); await page.goto(`${origin}/admin/inquiries?keyword=Phase4고객`);
+    assert.ok(await page.getByRole('table').isVisible()); await noOverflow(); await page.screenshot({ path: join(dir, 'inquiries-desktop.png'), fullPage: true });
+    await page.goto(`${origin}/admin/inquiries/${inquiryId}`); await noOverflow(); await page.screenshot({ path: join(dir, 'inquiry-detail-desktop.png'), fullPage: true });
+    assert.equal(errors.length, 0, errors.join('\n'));
+    console.log('PASS mobile cards, desktop table, detail photos, phone/map actions and responsive layout');
+  } finally { await context.close(); }
+}
