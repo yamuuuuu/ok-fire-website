@@ -10,7 +10,7 @@ export function DesktopAdminNavigation({ superAdmin }: { superAdmin: boolean }) 
   return <nav className="mt-10 space-y-2" aria-label="관리자 메뉴">
     {baseItems.map(item => <Link key={item.href} href={item.href} aria-current={active(pathname, item.href) ? 'page' : undefined} className={`block rounded-xl px-4 py-4 font-bold ${active(pathname, item.href) ? 'bg-red-50 text-red-800' : 'text-slate-700 hover:bg-slate-50'}`}>{item.label}</Link>)}
     <Link href="/admin/faq" aria-current={active(pathname, '/admin/faq') ? 'page' : undefined} className={`block rounded-xl px-4 py-4 font-bold ${active(pathname, '/admin/faq') ? 'bg-red-50 text-red-800' : 'text-slate-700 hover:bg-slate-50'}`}>FAQ</Link>
-    {superAdmin && <><Link href="/admin/settings" aria-current={active(pathname, '/admin/settings') ? 'page' : undefined} className={`block rounded-xl px-4 py-4 font-bold ${active(pathname, '/admin/settings') ? 'bg-red-50 text-red-800' : 'text-slate-700 hover:bg-slate-50'}`}>설정</Link><Link href="/admin/users" aria-current={active(pathname, '/admin/users') ? 'page' : undefined} className={`block rounded-xl px-4 py-4 font-bold ${active(pathname, '/admin/users') ? 'bg-red-50 text-red-800' : 'text-slate-700 hover:bg-slate-50'}`}>관리자</Link></>}
+    {superAdmin && <Link href="/admin/settings" aria-current={active(pathname, '/admin/settings') ? 'page' : undefined} className={`block rounded-xl px-4 py-4 font-bold ${active(pathname, '/admin/settings') ? 'bg-red-50 text-red-800' : 'text-slate-700 hover:bg-slate-50'}`}>설정</Link>}
   </nav>;
 }
 

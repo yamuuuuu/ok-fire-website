@@ -291,12 +291,9 @@ PATCH /api/admin/site-settings
 
 ## 20. 관리자
 ```text
-GET   /api/admin/users
-GET   /api/admin/users/options
-POST  /api/admin/users
-PATCH /api/admin/users/{id}
 POST  /api/admin/users/{id}/reset-password
 ```
+초기 SUPER_ADMIN 한 개만 운영합니다. 관리자 추가·상태 변경 API는 `403 FORBIDDEN`을 반환합니다. 비밀번호 재설정은 로그인한 본인 계정에만 허용됩니다.
 
 ## 21. 활동로그
 ```text

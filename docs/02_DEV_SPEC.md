@@ -41,13 +41,11 @@
 /admin/works/[id]
 /admin/faq
 /admin/settings
-/admin/users
 ```
 
 ## 3. 관리자 권한
 ### SUPER_ADMIN
 - 모든 기능
-- 관리자 생성/비활성
 - 사이트 설정
 - 활동로그
 
@@ -271,11 +269,11 @@ Pagination:
 
 ## 21. Phase 8 CMS 구현 기준
 
-- MANAGER는 작업사례와 FAQ를 생성·수정·공개·Soft Delete할 수 있습니다. SUPER_ADMIN은 사이트 설정과 관리자 계정 관리도 수행합니다.
+- 초기 SUPER_ADMIN 한 개가 모든 관리자 기능을 수행합니다. 추가 관리자 계정과 MANAGER 역할은 운영하지 않습니다.
 - 공개 API와 공개 페이지는 `published=true`, `deleted_at IS NULL`만 조회합니다.
 - 작업사례 사진은 Signed PUT 후 서버에서 이미지 형식·크기·해시를 검증하고 JPEG로 정규화합니다. 작업 전·중·후 유형과 정렬 순서를 저장하며 삭제는 Soft Delete합니다.
-- 관리자 생성과 비밀번호 재설정은 16~128자 비밀번호를 해시해 저장합니다. 재설정 시 대상 계정의 기존 세션을 폐기합니다.
-- 현재 로그인한 SUPER_ADMIN은 자기 계정을 비활성화할 수 없습니다.
+- 초기 관리자 비밀번호는 16~128자로 해시해 저장합니다. 관리자 계정은 PostgreSQL seed로 한 번 생성하며, 직접 DB에 비밀번호를 저장하지 않습니다.
+- 비밀번호 재설정은 본인 계정에만 허용하며 기존 세션을 폐기합니다. 단일 관리자 계정의 역할과 상태는 변경할 수 없습니다.
 
 ## 22. Phase 9 SEO / Analytics 구현 기준
 

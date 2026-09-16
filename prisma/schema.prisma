@@ -82,6 +82,7 @@ enum WorkImageType {
 
 model Admin {
   id                                           BigInt                     @id @default(autoincrement())
+  singletonKey                                 Int                        @default(1) @unique @map("singleton_key")
   name                                         String                     @db.VarChar(50)
   email                                        String                     @unique @db.VarChar(255)
   passwordHash                                 String                     @map("password_hash") @db.VarChar(255)
