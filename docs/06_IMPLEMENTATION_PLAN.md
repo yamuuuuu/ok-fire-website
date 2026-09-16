@@ -157,4 +157,4 @@
 - Phase 9: metadata, canonical, Open Graph, sitemap, robots, LocalBusiness JSON-LD와 선택형 GA4 이벤트 기반을 구현했습니다.
 - Phase 10: 단위 테스트 18개와 임시 PostgreSQL·S3rver·HTTPS Chromium 통합 테스트를 통해 접수·파일·인증·관리·CMS·SEO 전체 회귀를 확인했습니다.
 - 다음 작업은 Phase 11 배포 준비입니다.
-- 운영 개인정보 보유기간은 확인 대기입니다. 설정 전에는 실제 고객 접수를 활성화하지 않습니다.
+- 개인정보 수집 목적 달성 후 5일 이내 파기하며, 법령상 보존 의무 기록은 사용자 확정 기간에 따라 보관합니다. 운영 환경변수에 안내문을 설정한 뒤 실제 고객 접수를 활성화합니다.
