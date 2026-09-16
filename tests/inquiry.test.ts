@@ -26,10 +26,10 @@ test('custom contact detail is validated even before consent; irrelevant detail 
   if (!result.success) assert.ok(inquiryErrors(result.error.issues).preferredContactDetail);
   assert.equal(inquirySchema.parse({ ...valid, preferredContactTime: 'MORNING', preferredContactDetail: 'old choice' }).preferredContactDetail, null);
 });
-test('validates calendar dates including leap years and optional postal code', () => {
+test('validates calendar dates and rejects removed postal code input', () => {
   for (const date of ['2026-02-29', '2026-13-01', '2026-04-31', '2026-09-15T12:00:00Z']) assert.equal(inquirySchema.safeParse({ ...valid, preferredWorkDate: date }).success, false);
-  assert.equal(inquirySchema.parse({ ...valid, preferredWorkDate: '2028-02-29', postalCode: '01234' }).preferredWorkDate, '2028-02-29');
-  assert.equal(inquirySchema.safeParse({ ...valid, postalCode: '123456' }).success, false);
+  assert.equal(inquirySchema.parse({ ...valid, preferredWorkDate: '2028-02-29' }).preferredWorkDate, '2028-02-29');
+  assert.equal(inquirySchema.safeParse({ ...valid, postalCode: '01234' }).success, false);
 });
 test('receipt resists forgery, expiry and cross-secret reuse', () => {
   const secret = 'a'.repeat(64); const now = Date.now();

@@ -50,7 +50,6 @@ HTTP:
   "customerName": "홍길동",
   "phone": "01012345678",
   "companyName": "ABC빌딩",
-  "postalCode": "06236",
   "address": "서울특별시 강남구 테헤란로 123",
   "addressDetail": "3층",
   "description": "3층 복도 유도등에 불이 들어오지 않습니다.",
@@ -73,16 +72,7 @@ HTTP:
 }
 ```
 
-## 3. 고객 첨부
-### POST /api/inquiries/{id}/attachments
-초기 multipart 초안은 아래 27절의 직접 업로드 방식으로 대체되었습니다. Vercel 본문 제한에서도 10MB 파일을 처리하기 위한 구현 변경입니다.
-초기 필드 참고:
-```text
-file
-attachmentType=CUSTOMER
-```
-
-## 4. 관리자 인증
+## 3. 관리자 인증
 ```text
 POST /api/admin/auth/login
 POST /api/admin/auth/logout
@@ -391,10 +381,10 @@ P2:
 - 비로그인 고객이 사용하며 서버에서 입력·동의·rate limit을 검증합니다.
 - 기존 요청 필드에 `privacyPolicyVersion` 필수, `preferredWorkDate` 선택(`YYYY-MM-DD` 또는 null)을 추가합니다.
 - 필수: inquiryType, customerName, phone, address, description, privacyAgreed=true, privacyPolicyVersion.
-- 선택: companyName, postalCode, addressDetail, preferredContactTime, preferredContactDetail, preferredWorkDate. 빈 선택 문자열은 NULL로 정규화합니다.
+- 선택: companyName, addressDetail, preferredContactTime, preferredContactDetail, preferredWorkDate. 빈 선택 문자열은 NULL로 정규화합니다.
 - customerName 1~50자, companyName 100자, address/addressDetail 255자, description 1~5,000자, 연락시간 상세 100자.
 - 전화번호는 공백/하이픈/괄호 제거, +82는 국내 0 접두사로 정규화. 국내 형식 9~12자리 숫자 검증.
-- postalCode는 입력 시 숫자 5자리, 날짜는 실제 달력 날짜 검증.
+- 날짜는 실제 달력 날짜를 검증합니다.
 - preferredContactTime=CUSTOM이면 상세 시간 필수. 다른 값에서는 상세 시간을 NULL로 저장합니다.
 - 본문 최대 32KiB. 모르는 필드(상태, 담당자, attachments 등 포함)는 거부합니다.
 
@@ -429,45 +419,14 @@ P2:
 
 Vercel의 플랫폼 IP 헤더만 신뢰하고 다른 환경에서는 공통 local 버킷을 사용합니다. 외부 프록시를 별도로 도입하면 신뢰 설정이 필요합니다. Phase 3 첨부 API는 접수 ID만으로 업로드/조회가 허용되지 않도록 별도 소유 증명을 구현해야 합니다.
 
-## 27. Phase 3 고객 이미지 업로드
+## 27. 고객 이미지 업로드
 
-공통: 동일 Origin, 접수 생성 시 사용한 UUID를 `X-Inquiry-Key`로 제출. 해당 접수의 생성 후 30분 이내이고 Soft Delete되지 않아야 합니다. 완료 페이지의 receipt 쿠키는 업로드 권한이 아닙니다.
-
-### POST /api/inquiries/{id}/attachments — 예약
-application/json:
-```json
-{
-  "clientId": "08643320-41c5-49e9-a096-c8c15920fcaa",
-  "originalName": "현장.jpg",
-  "mimeType": "image/jpeg",
-  "fileSize": 123456,
-  "sha256": "64자리 소문자 SHA-256 hex"
-}
-```
-- 성공 201: data.uploadId, complete=false, url, headers, expiresIn=300.
-- 이미 완료된 동일 clientId는 data.uploadId, complete=true, attachmentId 반환. 같은 ID의 다른 메타데이터는 409 UPLOAD_CONFLICT.
-- 유효한 예약과 완료 사진 합계 10장. 11번째는 409 MAX_ATTACHMENT_EXCEEDED.
-- 예약은 최대 10분. 고객 전체 업로드 권한은 30분을 초과하지 않습니다.
-
-### PUT {data.url} — 저장소로 전송
-- 응답 headers의 Content-Type을 사용해 파일 바이트를 직접 전송합니다. credentials=omit.
-- Content-Length와 Content-Type은 서명에 포함됩니다. 브라우저가 계산한 Content-Length를 사용합니다.
-- 전송 성공만으로 정식 사진이 생성되지 않습니다. 반드시 다음 완료 API를 호출합니다.
-
-### POST /api/inquiries/{id}/attachments/{uploadId}/complete — 검증 및 확정
-- 본문 없음. 공통 Origin 및 X-Inquiry-Key 필수.
-- 크기/해시/실제 형식/디코딩을 확인한 후 정규화 JPEG를 private key에 저장하고 첨부를 생성합니다.
-- 성공 200: data.id(첨부 ID 문자열), complete=true. 같은 ticket 재시도는 같은 첨부를 반환합니다.
-- 고객은 파일 내용이나 Signed GET URL을 응답받지 않습니다.
+간편 상담 접수에서는 고객 사진 업로드 API를 제공하지 않습니다. 고객은 현장 상황을 문의 내용에 적고, 관리자는 필요한 사진을 현장 업무에서 직접 등록합니다.
 
 ### GET /api/admin/attachments/{id}/url
 - 관리자 세션 필수. 첨부 또는 접수가 Soft Delete되었으면 404.
 - 성공 data.url, expiresIn=60. ATTACHMENT_VIEW 활동 로그 기록.
 - Phase 3에서는 정규화된 고객 JPEG를 지원합니다. 견적 파일은 Phase 6에서 확장합니다.
-
-추가 오류: 401 UNAUTHORIZED(소유 증명 없음), 403 FORBIDDEN(다른 접수/권한 만료), 410 UPLOAD_EXPIRED, 413 FILE_TOO_LARGE, 415 UNSUPPORTED_FILE_TYPE, 422 FILE_CONTENT_MISMATCH, 503 STORAGE_UNAVAILABLE.
-
-접수별 업로드 API 요청을 30분 120회로 제한합니다. Signed URL/요청 키/사진 원문을 로그에 기록하지 않습니다.
 
 ## 28. Phase 4 관리자 접수 조회
 

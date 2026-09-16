@@ -18,7 +18,6 @@ export const inquirySchema = z.object({
   customerName: z.string().trim().min(1, '이름을 입력해주세요.').max(50, '이름은 50자까지 입력해주세요.'),
   phone: z.string().trim().max(30, '연락처를 확인해주세요.').transform(value => value.replace(/[\s()-]/g, '').replace(/^\+82/, '0')).pipe(z.string().regex(/^0[1-9]\d{7,10}$/, '연락 가능한 국내 전화번호를 입력해주세요.')),
   companyName: optionalText(100),
-  postalCode: z.string().trim().regex(/^\d{5}$|^$/, '우편번호는 숫자 5자리입니다.').nullish().transform(value => value || null),
   address: z.string().trim().min(1, '현장 주소를 입력해주세요.').max(255, '주소는 255자까지 입력해주세요.'),
   addressDetail: optionalText(255),
   description: z.string().trim().min(1, '문의 내용을 입력해주세요.').max(5000, '문의 내용은 5,000자까지 입력해주세요.'),
@@ -36,12 +35,12 @@ export const inquirySchema = z.object({
 export type InquiryInput = z.output<typeof inquirySchema>;
 export type InquiryDraft = {
   inquiryType: string; customerName: string; phone: string; companyName: string;
-  postalCode: string; address: string; addressDetail: string; description: string;
+  address: string; addressDetail: string; description: string;
   preferredContactTime: string; preferredContactDetail: string; preferredWorkDate: string;
   privacyAgreed: boolean; privacyPolicyVersion: string;
 };
 export const stepFields: (keyof InquiryDraft)[][] = [
-  ['inquiryType'], ['address', 'addressDetail', 'postalCode', 'companyName'],
+  ['inquiryType'], ['address', 'addressDetail', 'companyName'],
   ['description', 'preferredWorkDate'], ['customerName', 'phone', 'preferredContactTime', 'preferredContactDetail'],
   ['privacyAgreed', 'privacyPolicyVersion'],
 ];
