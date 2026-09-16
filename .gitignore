@@ -13,3 +13,5 @@ certificates/
 .vercel/
 playwright-report/
 test-results/
+.agents/
+skills-lock.json
