@@ -225,11 +225,12 @@ S3rver는 실제 클라우드 IAM·비공개 ACL·서명 만료 정책의 완전
 | 파일 | 10장 제한, 10MiB 제한, 위조·손상·해시 불일치 거부, HEIC 포함 JPEG 정규화, 보호 URL 확인 |
 | 인증·권한 | 로그인 실패·제한·CSRF·세션 교체·비활성/잠금/삭제 계정·SUPER_ADMIN 경계 확인 |
 
-## 단일 관리자 운영 정책
+## 관리자 운영 정책
 
-- `Admin.singleton_key`의 PostgreSQL unique index로 관리자 행을 한 개로 제한합니다.
-- 관리자 생성·상태 변경 API는 `403 FORBIDDEN`을 반환합니다.
-- 초기 `SUPER_ADMIN`은 `npm run db:seed`로만 생성하며, 비밀번호는 해시로 저장됩니다.
+- SUPER_ADMIN은 관리자 계정을 MANAGER로 추가할 수 있습니다.
+- 활성·미삭제 SUPER_ADMIN은 PostgreSQL partial unique index로 한 명만 유지합니다.
+- 최고 관리자 변경은 기존 최고 관리자를 MANAGER로 변경한 뒤 대상 활성 MANAGER를 SUPER_ADMIN으로 변경하고, 두 계정의 세션을 폐기합니다.
+- 초기 `SUPER_ADMIN`은 `npm run db:seed`로 생성하며, 비밀번호는 해시로 저장됩니다.
 | 운영 기능 | 상태·담당자 이력, 메모 Soft Delete, 방문·견적·PDF 보호 첨부 확인 |
 | CMS·SEO | 작업사례·FAQ 공개 필터와 Soft Delete, 설정·계정 관리, sitemap·공개 경로 확인 |
 | 반응형 | Chromium 모바일 390×844와 PC 1440×1000에서 고객·관리 화면의 가로 넘침 및 JS 오류 없음 |

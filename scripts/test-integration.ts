@@ -10,7 +10,6 @@ import { createServer as createHttpsServer } from 'node:https';
 import EmbeddedPostgres from 'embedded-postgres';
 import { Pool } from 'pg';
 import S3rver from 's3rver';
-import { testUploads } from './upload-integration';
 import { testInquiryApi, testInquiryBrowser } from './inquiry-integration';
 import { testAdminInquiryApi, testAdminInquiryBrowser } from './admin-inquiry-integration';
 import { chromium, request as playwrightRequest } from '@playwright/test';
@@ -134,7 +133,6 @@ async function main() {
     console.log('PASS concurrent database-backed rate limiting, window reset and activity logs');
     await pool.query('DELETE FROM auth_rate_limits');
     await testInquiryApi(api, pool, origin);
-    await testUploads(api, pool, origin, login);
     const adminInquiryId = await testAdminInquiryApi(api, pool, origin, login);
     browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });

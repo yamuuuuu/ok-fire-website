@@ -21,7 +21,7 @@
 - 고객·현장·문의·첨부사진 확인, 전화 연결, 지도 검색 링크, 민감정보 열람 활동 로그
 - 상태 변경 이력, 담당자 지정 이력, 작성자/최고관리자 메모 수정·삭제, 접수 타임라인
 - 고객 홈페이지, 회사소개, 서비스 및 개별 서비스 페이지, 작업사례, FAQ, 공개 푸터와 모바일 상담 CTA
-- 작업사례·FAQ CMS, 작업 전/중/후 사진 직접 업로드·정렬 API, 사이트 설정, 단일 SUPER_ADMIN 관리자 계정
+- 작업사례·FAQ CMS, 작업 전/중/후 사진 직접 업로드·정렬 API, 사이트 설정, SUPER_ADMIN의 관리자 계정 추가·최고 관리자 이전
 - canonical·Open Graph·sitemap·robots·LocalBusiness 구조화 데이터 및 선택형 GA4 이벤트 기반
 
 홈에서 상담접수 화면으로 이동할 수 있으며 관리자 접수 조회와 기본 업무 처리를 구현했습니다. 방문 일정·견적·현장 사진 및 견적 파일 관리는 Phase 6까지, 고객 공개 웹과 CMS는 Phase 8까지 구현했습니다. Vercel 프로젝트는 생성되어 `https://ok-fire-website.vercel.app`에 배포됐으며, 운영 PostgreSQL·Object Storage와 GitHub 자동 배포 연결은 아직 설정하지 않았습니다.
@@ -70,7 +70,7 @@ npm run db:deploy
 npm run db:seed
 ```
 
-`SEED_ADMIN_PASSWORD`는 16~128자이며 기본값이 없습니다. 최초 seed는 유일한 SUPER_ADMIN을 생성하고 활동 로그를 남깁니다. 같은 이메일의 활성 SUPER_ADMIN이 있으면 아무것도 바꾸지 않습니다. 비밀번호 해시와 활동 로그를 함께 저장하므로 관리자 행을 PostgreSQL에 직접 추가하지 마세요.
+`SEED_ADMIN_PASSWORD`는 16~128자이며 기본값이 없습니다. 최초 seed는 SUPER_ADMIN을 생성하고 활동 로그를 남깁니다. 같은 이메일의 활성 SUPER_ADMIN이 있으면 아무것도 바꾸지 않습니다. 이후 계정 추가와 최고 관리자 변경은 `/admin/users`에서 수행하며, 비밀번호 해시와 활동 로그를 함께 저장하므로 관리자 행을 PostgreSQL에 직접 추가하지 마세요.
 
 seed가 끝나면 `.env`의 `SEED_ADMIN_PASSWORD`를 제거하고 비밀번호는 비밀번호 관리자에 보관하세요. 이후 seed를 다시 실행하려면 입력값을 다시 설정해야 합니다. seed는 비밀번호 재설정 도구가 아닙니다.
 

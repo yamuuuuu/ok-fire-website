@@ -7,7 +7,7 @@ import sharp from 'sharp';
 
 const sample = {
   inquiryType: 'FIRE_ELECTRIC', customerName: '테스트 고객', phone: '010-2345-6789',
-  companyName: '테스트 빌딩', postalCode: '01234', address: '서울 테스트구 테스트로 123', addressDetail: '3층',
+  companyName: '테스트 빌딩', address: '서울 테스트구 테스트로 123', addressDetail: '3층',
   description: '복도 유도등이 켜지지 않습니다. 점검을 요청합니다.',
   preferredContactTime: 'CUSTOM', preferredContactDetail: '평일 오후 2시 이후',
   preferredWorkDate: '2028-02-29', privacyAgreed: true, privacyPolicyVersion: 'integration-test-only',

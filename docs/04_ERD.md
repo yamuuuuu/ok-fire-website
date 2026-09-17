@@ -317,6 +317,7 @@ COMMIT
 - 기본 Soft Delete
 - 관리자 퇴사 시 계정 비활성화
 - 과거 메모/상태/담당자 이력 유지
+- 활성·미삭제 SUPER_ADMIN은 부분 unique index로 한 명만 유지
 
 ## 19. Phase 1 구현 보완
 

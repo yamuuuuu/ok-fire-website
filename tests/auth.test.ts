@@ -4,6 +4,7 @@ import { hashPassword, verifyPassword, DUMMY_PASSWORD_HASH } from '../src/lib/pa
 import { loginSchema, seedSchema } from '../src/validations/auth';
 import { hasRole } from '../src/lib/authorization';
 import { ApiError, readJson, requireSameOrigin } from '../src/lib/http';
+import { userSchema } from '../src/validations/cms';
 test('password hashing salts independently and rejects incorrect or malformed credentials', async () => {
   const password = 'integration-unit-password';
   const [first, second] = await Promise.all([hashPassword(password), hashPassword(password)]);
@@ -21,6 +22,12 @@ test('login normalizes email, never password, and rejects excessive input', () =
 test('manager cannot access SUPER_ADMIN-only operations', () => {
   assert.equal(hasRole('MANAGER', 'SUPER_ADMIN'), false);
   assert.equal(hasRole('SUPER_ADMIN', 'SUPER_ADMIN'), true);
+});
+test('new administrators are created as managers by the server schema', () => {
+  const result=userSchema.parse({name:'현장 관리자',email:' Manager@Example.com ',password:'a'.repeat(16)});
+  assert.equal(result.email,'manager@example.com');
+  assert.equal(userSchema.safeParse({...result,role:'SUPER_ADMIN'}).success,false);
+  assert.equal(userSchema.safeParse({...result,password:'short'}).success,false);
 });
 test('JSON body limit is enforced even without a Content-Length', async () => {
   await assert.rejects(readJson(new Request('https://localhost', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ value: 'x'.repeat(9000) }) })), (err: unknown) => err instanceof ApiError && err.status === 413);

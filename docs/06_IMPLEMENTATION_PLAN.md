@@ -84,7 +84,7 @@
 2. 이미지 정렬
 3. FAQ CRUD
 4. 사이트 설정
-5. 단일 SUPER_ADMIN 운영 정책 적용
+5. SUPER_ADMIN 관리자 추가·권한 이전 정책 적용
 
 ## Phase 9. SEO / Analytics
 - metadata
@@ -153,7 +153,7 @@
 - Phase 5: 상태 변경·상태 이력, 담당자 지정·이력, 작성자/최고관리자 메모 관리, 타임라인 API와 상세 업무 처리 UI 구현.
 - Phase 6: 방문 일정 등록·목록·완료 처리, 견적 등록/수정/삭제, PDF·XLSX 견적 파일과 작업 전/중/후 사진의 관리자 직접 업로드를 구현했습니다. 운영 Object Storage는 연결 전입니다.
 - Phase 7: 고객 홈, 회사소개, 서비스/개별 서비스, 작업사례, FAQ, 공통 푸터와 모바일 상담 CTA를 구현했습니다. 공개 작업사례·FAQ는 CMS 공개 데이터가 생기면 자동으로 표시됩니다.
-- Phase 8: 작업사례·FAQ CRUD, 공개 필터 API, 작업 사진 직접 업로드·정렬 API, 사이트 설정과 단일 SUPER_ADMIN 운영 정책을 구현했습니다.
+- Phase 8: 작업사례·FAQ CRUD, 공개 필터 API, 작업 사진 직접 업로드·정렬 API, 사이트 설정과 관리자 계정 관리 정책을 구현했습니다.
 - Phase 9: metadata, canonical, Open Graph, sitemap, robots, LocalBusiness JSON-LD와 선택형 GA4 이벤트 기반을 구현했습니다.
 - Phase 10: 단위 테스트 18개와 임시 PostgreSQL·S3rver·HTTPS Chromium 통합 테스트를 통해 접수·파일·인증·관리·CMS·SEO 전체 회귀를 확인했습니다.
 - 다음 작업은 Phase 11 배포 준비입니다.
