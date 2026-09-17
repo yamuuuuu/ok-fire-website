@@ -8,6 +8,6 @@ export const workUpdateSchema = workSchema.partial().refine(value => Object.keys
 export const faqSchema = z.object({ category: optional(30), question: z.string().trim().min(1).max(500), answer: z.string().trim().min(1).max(20000), sortOrder: z.number().int().min(0).max(9999).default(0), published: z.boolean().default(false) }).strict();
 export const faqUpdateSchema = faqSchema.partial().refine(value => Object.keys(value).length > 0);
 export const settingsSchema = z.object({ settings: z.array(z.object({ key: z.string().trim().min(1).max(100).regex(/^[A-Z0-9_]+$/), value: z.string().max(10000).nullable(), valueType: z.enum(['TEXT', 'URL', 'PHONE', 'JSON']).default('TEXT'), description: optional(255) }).strict()).min(1).max(30) }).strict();
-export const userSchema = z.object({ name: z.string().trim().min(1).max(50), email: z.string().trim().pipe(z.email().max(255)).transform(value => value.toLowerCase()), phone: optional(20), password: z.string().min(16).max(128) }).strict();
+export const userSchema = z.object({ name: z.string().trim().min(1).max(50), email: z.string().trim().pipe(z.email().max(255)).transform(value => value.toLowerCase()), phone: optional(20), password: z.string().min(10).max(128) }).strict();
 export const userUpdateSchema = z.object({ name: z.string().trim().min(1).max(50).optional(), phone: optional(20), role: z.enum(['SUPER_ADMIN', 'MANAGER']).optional(), status: z.enum(['ACTIVE', 'INACTIVE', 'LOCKED']).optional() }).strict().refine(value => Object.keys(value).length > 0);
-export const passwordResetSchema = z.object({ password: z.string().min(16).max(128) }).strict();
+export const passwordResetSchema = z.object({ password: z.string().min(10).max(128) }).strict();

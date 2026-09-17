@@ -70,7 +70,7 @@ npm run db:deploy
 npm run db:seed
 ```
 
-`SEED_ADMIN_PASSWORD`는 16~128자이며 기본값이 없습니다. 최초 seed는 SUPER_ADMIN을 생성하고 활동 로그를 남깁니다. 같은 이메일의 활성 SUPER_ADMIN이 있으면 아무것도 바꾸지 않습니다. 이후 계정 추가와 최고 관리자 변경은 `/admin/users`에서 수행하며, 비밀번호 해시와 활동 로그를 함께 저장하므로 관리자 행을 PostgreSQL에 직접 추가하지 마세요.
+`SEED_ADMIN_PASSWORD`는 10~128자이며 기본값이 없습니다. 최초 seed는 SUPER_ADMIN을 생성하고 활동 로그를 남깁니다. 같은 이메일의 활성 SUPER_ADMIN이 있으면 아무것도 바꾸지 않습니다. 이후 계정 추가와 최고 관리자 변경은 `/admin/users`에서 수행하며, 비밀번호 해시와 활동 로그를 함께 저장하므로 관리자 행을 PostgreSQL에 직접 추가하지 마세요.
 
 seed가 끝나면 `.env`의 `SEED_ADMIN_PASSWORD`를 제거하고 비밀번호는 비밀번호 관리자에 보관하세요. 이후 seed를 다시 실행하려면 입력값을 다시 설정해야 합니다. seed는 비밀번호 재설정 도구가 아닙니다.
 
@@ -141,7 +141,7 @@ npm run test:integration
 | `AUTH_SECRET` | 최소 64자 난수. 로그인 제한 식별자 HMAC 키 | 인증 |
 | `SEED_ADMIN_NAME` | 초기 관리자 이름 | seed |
 | `SEED_ADMIN_EMAIL` | 초기 관리자 이메일 (소문자 정규화) | seed |
-| `SEED_ADMIN_PASSWORD` | 초기 비밀번호, 16~128자 | 최초 seed 실행 |
+| `SEED_ADMIN_PASSWORD` | 초기 비밀번호, 10~128자 | 최초 seed 실행 |
 | `PRIVACY_RETENTION_TEXT` | 확정된 상담 개인정보 보유·이용 기간 | 접수 활성화 |
 | `PRIVACY_CONTACT_TEXT` | 개인정보 문의 연락처 | 접수 활성화 |
 | `PRIVACY_POLICY_VERSION` | 동의 안내 버전, 최대 100자 | 접수 활성화 |
@@ -173,7 +173,8 @@ npm run test:integration
 - **모든 신규 관리자 API와 Server Action**은 `requireAdmin()`을 호출해야 합니다. 최고 관리자 기능은 `requireAdmin('SUPER_ADMIN')`을 사용합니다. 레이아웃만으로 API를 보호할 수 없습니다.
 - 모든 상태 변경 요청은 `requireSameOrigin()` 검증 후 처리합니다. 로그인·로그아웃도 포함합니다.
 - 모든 Prisma 연결은 UTC 시간대를 사용합니다. DB 서버 시간대가 한국이어도 세션 수명과 TIMESTAMPTZ 조회가 어긋나지 않도록 공유 factory를 사용하세요.
-- 세션에서 반환하는 관리자 정보는 id/name/email/role로 제한합니다. BigInt ID는 JSON 문자열로 직렬화합니다.
+- 세션에서 반환하는 관리자 정보는 id/name/email/role과 OTP 설정 여부로 제한합니다. BigInt ID는 JSON 문자열로 직렬화합니다.
+- 관리자는 비밀번호를 통과한 뒤 OTP가 설정되어 있지 않으면 `/admin/security`에서 인증 앱을 먼저 등록해야 합니다. 등록 후에는 비밀번호와 6자리 TOTP를 모두 확인합니다.
 - 로그에 요청 본문·비밀번호·세션 원문·전체 전화번호·DB 연결 문자열을 출력하지 않습니다.
 - 계정당 15분 10회, IP당 15분 100회 로그인 요청을 DB 원자적 증가로 제한합니다. 성공 요청도 횟수에 포함합니다. Vercel에서만 플랫폼이 제공한 `x-vercel-forwarded-for`를 사용합니다. 다른 배포 환경은 공통 IP 버킷을 사용하므로 신뢰 프록시 설정을 별도 구현해야 합니다.
 - 만료 세션은 해당 계정 로그인 시 정리됩니다. 만료 로그인 제한 레코드 정리는 운영 스케줄러 도입 시 구현합니다.

@@ -287,7 +287,7 @@ PATCH /api/admin/users/{id}
 DELETE /api/admin/users/{id}
 POST  /api/admin/users/{id}/reset-password
 ```
-- 모든 관리자 계정 API는 SUPER_ADMIN 전용이며, 생성되는 계정은 ACTIVE MANAGER입니다. 생성 요청은 name, email, phone(선택), password(16~128자)를 받습니다.
+- 모든 관리자 계정 API는 SUPER_ADMIN 전용이며, 생성되는 계정은 ACTIVE MANAGER입니다. 생성 요청은 name, email, phone(선택), password(10~128자)를 받습니다.
 - `PATCH /api/admin/users/{id}`는 `{ "confirm": true }`를 받아 활성 MANAGER를 최고 관리자로 변경합니다. 최고 관리자는 한 명만 허용하고, 변경 시 기존·새 최고 관리자 계정의 세션을 모두 폐기합니다.
 - `DELETE /api/admin/users/{id}`는 일반 관리자만 Soft Delete하고 해당 계정의 모든 세션을 폐기합니다. SUPER_ADMIN과 현재 로그인한 계정은 삭제할 수 없습니다.
 - 비밀번호 재설정은 로그인한 본인 계정에만 허용됩니다.
@@ -368,7 +368,7 @@ P2:
 
 ## 25. Phase 1 인증 구현 상세
 
-- POST login 성공: `{ "success": true, "data": { "admin": { "id": "1", "name": "관리자", "email": "admin@example.com", "role": "SUPER_ADMIN" } } }`
+- POST login은 OTP가 설정된 계정에 대해 짧은 수명의 MFA 확인 쿠키를 발급하고 `{ "requiresTotp": true }`를 반환합니다. 클라이언트는 `POST /api/admin/auth/totp/verify`에 6자리 코드를 보내야 일반 세션이 발급됩니다. OTP가 없는 계정은 일반 세션으로 로그인한 뒤 `/admin/security`에서 `GET/POST /api/admin/auth/totp/setup`을 통해 등록해야 하며, 등록 전에는 이 두 API 외의 관리자 업무 API가 `403 OTP_SETUP_REQUIRED`를 반환합니다.
 - GET me는 동일한 admin 형식, 비로그인·만료·비활성·잠금·삭제 상태는 401입니다.
 - POST logout 성공: `{ "success": true, "data": { "loggedOut": true } }`. 현재 세션을 DB에서 삭제하고 쿠키를 만료시킵니다. 세션이 없어도 같은 응답입니다.
 - 세션 쿠키: `__Host-okfire_session`, HttpOnly, Secure, SameSite=Lax, Path=/, Domain 없음, 절대 만료 8시간.

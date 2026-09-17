@@ -23,11 +23,12 @@ test('manager cannot access SUPER_ADMIN-only operations', () => {
   assert.equal(hasRole('MANAGER', 'SUPER_ADMIN'), false);
   assert.equal(hasRole('SUPER_ADMIN', 'SUPER_ADMIN'), true);
 });
-test('new administrators are created as managers by the server schema', () => {
-  const result=userSchema.parse({name:'현장 관리자',email:' Manager@Example.com ',password:'a'.repeat(16)});
+test('new administrators require passwords of at least 10 characters', () => {
+  const result=userSchema.parse({name:'현장 관리자',email:' Manager@Example.com ',password:'a'.repeat(10)});
   assert.equal(result.email,'manager@example.com');
   assert.equal(userSchema.safeParse({...result,role:'SUPER_ADMIN'}).success,false);
-  assert.equal(userSchema.safeParse({...result,password:'short'}).success,false);
+  assert.equal(userSchema.safeParse({...result,password:'a'.repeat(9)}).success,false);
+  assert.equal(seedSchema.safeParse({ SEED_ADMIN_NAME: '관리자', SEED_ADMIN_EMAIL: 'admin@example.com', SEED_ADMIN_PASSWORD: 'a'.repeat(10) }).success, true);
 });
 test('JSON body limit is enforced even without a Content-Length', async () => {
   await assert.rejects(readJson(new Request('https://localhost', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ value: 'x'.repeat(9000) }) })), (err: unknown) => err instanceof ApiError && err.status === 413);

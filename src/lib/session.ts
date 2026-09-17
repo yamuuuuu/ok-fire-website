@@ -21,15 +21,16 @@ export async function currentAdmin() {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token || !/^[a-f0-9]{64}$/.test(token)) return null;
   const session = await db().adminSession.findFirst({ where: { tokenHash: tokenHash(token), expiresAt: { gt: new Date() } }, select: {
-    expiresAt: true, admin: { select: { id: true, name: true, email: true, role: true, status: true, deletedAt: true } },
+    expiresAt: true, admin: { select: { id: true, name: true, email: true, role: true, status: true, deletedAt: true, totpEnabledAt: true } },
   } });
   if (!session || session.expiresAt <= new Date() || session.admin.status !== 'ACTIVE' || session.admin.deletedAt) return null;
-  const { id, name, email, role } = session.admin;
-  return { id: id.toString(), name, email, role };
+  const { id, name, email, role, totpEnabledAt } = session.admin;
+  return { id: id.toString(), name, email, role, totpEnabled: Boolean(totpEnabledAt) };
 }
-export async function requireAdmin(role?: AdminRole) {
+export async function requireAdmin(role?: AdminRole, allowWithoutTotp = false) {
   const admin = await currentAdmin();
   if (!admin) throw new ApiError(401, 'UNAUTHORIZED', '관리자 로그인이 필요합니다.');
+  if (!allowWithoutTotp && !admin.totpEnabled) throw new ApiError(403, 'OTP_SETUP_REQUIRED', '인증 앱 설정을 완료해주세요.');
   if (role && !hasRole(admin.role, role)) throw new ApiError(403, 'FORBIDDEN', '접근 권한이 없습니다.');
   return admin;
 }
