@@ -85,6 +85,8 @@ model Admin {
   name                                         String                     @db.VarChar(50)
   email                                        String                     @unique @db.VarChar(255)
   passwordHash                                 String                     @map("password_hash") @db.VarChar(255)
+  totpSecret                                  String?                    @map("totp_secret") @db.VarChar(255)
+  totpEnabledAt                               DateTime?                  @map("totp_enabled_at") @db.Timestamptz(3)
   phone                                        String?                    @db.VarChar(20)
   role                                         AdminRole                  @default(MANAGER)
   status                                       AdminStatus                @default(ACTIVE)

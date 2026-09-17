@@ -1,14 +1,18 @@
 import 'server-only';
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { cookies } from 'next/headers';
 import { db } from './db';
+import { getEnv } from './env';
 import { ApiError } from './http';
 import { hasRole } from './authorization';
 import type { AdminRole } from '@/generated/prisma/client';
 export const SESSION_COOKIE = '__Host-okfire_session';
 export const SESSION_SECONDS = 60 * 60 * 8;
+export const MFA_COOKIE='__Host-okfire_mfa'; export const MFA_SECONDS=300;
 export const sessionCookieOptions = { httpOnly: true, secure: true, sameSite: 'lax' as const, path: '/' };
 export function tokenHash(token: string) { return createHash('sha256').update(token).digest('hex'); }
+export function signMfa(adminId:string){const payload=Buffer.from(JSON.stringify({adminId,expiresAt:Date.now()+MFA_SECONDS*1000})).toString('base64url');const signature=createHmac('sha256',getEnv().AUTH_SECRET).update(payload).digest('base64url');return `${payload}.${signature}`;}
+export function verifyMfa(value?:string){try{if(!value)return null;const [payload,signature]=value.split('.');const expected=createHmac('sha256',getEnv().AUTH_SECRET).update(payload).digest('base64url');if(!signature||!timingSafeEqual(Buffer.from(signature),Buffer.from(expected)))return null;const data=JSON.parse(Buffer.from(payload,'base64url').toString('utf8'));return typeof data.adminId==='string'&&typeof data.expiresAt==='number'&&data.expiresAt>Date.now()?data.adminId:null;}catch{return null;}}
 export function newSession() {
   const token = randomBytes(32).toString('hex');
   return { token, tokenHash: tokenHash(token), expiresAt: new Date(Date.now() + SESSION_SECONDS * 1000) };
