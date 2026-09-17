@@ -284,10 +284,12 @@ PATCH /api/admin/site-settings
 GET   /api/admin/users
 POST  /api/admin/users
 PATCH /api/admin/users/{id}
+DELETE /api/admin/users/{id}
 POST  /api/admin/users/{id}/reset-password
 ```
 - 모든 관리자 계정 API는 SUPER_ADMIN 전용이며, 생성되는 계정은 ACTIVE MANAGER입니다. 생성 요청은 name, email, phone(선택), password(16~128자)를 받습니다.
 - `PATCH /api/admin/users/{id}`는 `{ "confirm": true }`를 받아 활성 MANAGER를 최고 관리자로 변경합니다. 최고 관리자는 한 명만 허용하고, 변경 시 기존·새 최고 관리자 계정의 세션을 모두 폐기합니다.
+- `DELETE /api/admin/users/{id}`는 일반 관리자만 Soft Delete하고 해당 계정의 모든 세션을 폐기합니다. SUPER_ADMIN과 현재 로그인한 계정은 삭제할 수 없습니다.
 - 비밀번호 재설정은 로그인한 본인 계정에만 허용됩니다.
 
 ## 21. 활동로그

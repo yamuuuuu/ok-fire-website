@@ -1,3 +1,4 @@
-import { ApiError,failure,readJson,requireSameOrigin,success } from '@/lib/http'; import { requireAdmin } from '@/lib/session'; import { transferSuperAdmin } from '@/services/cms'; import { z } from 'zod';
+import { ApiError,failure,readJson,requireSameOrigin,success } from '@/lib/http'; import { requireAdmin } from '@/lib/session'; import { deleteUser,transferSuperAdmin } from '@/services/cms'; import { z } from 'zod';
 const transferSchema=z.object({confirm:z.literal(true)}).strict();
 export async function PATCH(r:Request,c:{params:Promise<{id:string}>}){try{requireSameOrigin(r);const a=await requireAdmin('SUPER_ADMIN');if(!transferSchema.safeParse(await readJson(r)).success)throw new ApiError(422,'VALIDATION_ERROR','최고 관리자 변경을 확인해주세요.');return success(await transferSuperAdmin((await c.params).id,a.id));}catch(e){return failure(e);}}
+export async function DELETE(r:Request,c:{params:Promise<{id:string}>}){try{requireSameOrigin(r);const a=await requireAdmin('SUPER_ADMIN');return success(await deleteUser((await c.params).id,a.id));}catch(e){return failure(e);}}
