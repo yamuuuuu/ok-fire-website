@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { VisualIcon, type VisualIconName } from './visual-icon';
 
 export type Service = { slug: string; title: string; text: string; number: string; overview: string; steps: string[]; checks: string[]; faq: { question: string; answer: string } };
 
@@ -11,6 +12,15 @@ export const services: Service[] = [
   { slug: 'seoul-fire-services', title: '서울 소방업체 상담', text: '서울 지역의 소방전기, 소방설비, 소방점검과 화재경보기 관련 현장 상담을 받습니다.', number: '06', overview: '서울 지역 현장은 상가·사무실·공장·공동주택 등 건물 용도와 운영 환경이 다양합니다. OK소방은 현장 상황을 먼저 듣고 소방전기, 설비 시공, 점검 중 필요한 상담 범위를 안내합니다.', steps: ['서울 현장 주소와 건물 용도 확인', '현재 설비와 문의 상황을 바탕으로 상담 범위 정리', '방문 또는 후속 안내가 필요한 항목과 일정 조율'], checks: ['서울 지역 현장 위치와 출입·운영 조건', '소방점검·설비 시공·경보기 이상 등 문의 유형', '사진, 기존 점검 내용, 희망 일정 등 제공 정보'], faq: { question: '서울 외 지역도 상담할 수 있나요?', answer: '우선 현장 위치와 문의 내용을 남겨주시면 대응 가능 여부와 상담 방법을 안내합니다.' } },
 ];
 
+const serviceIcons: Record<string, VisualIconName> = {
+  'fire-electric': 'bolt',
+  'fire-construction': 'tools',
+  'fire-inspection': 'clipboard',
+  'sprinkler-installation': 'sprinkler',
+  'fire-alarm-detection': 'alarm',
+  'seoul-fire-services': 'map-pin',
+};
+
 export function ServiceCards({ compact = false }: { compact?: boolean }) {
-  return <div className={`grid gap-4 ${compact ? 'md:grid-cols-3' : 'md:grid-cols-2 xl:grid-cols-3'}`}>{services.map(service => <article key={service.slug} className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-red-200 hover:shadow-md"><p className="text-sm font-black text-red-700">{service.number}</p><h3 className="mt-8 text-xl font-black">{service.title}</h3><p className="mt-3 text-sm leading-7 text-slate-600">{service.text}</p><Link href={`/services/${service.slug}`} className="mt-6 inline-flex min-h-11 items-center font-bold text-red-700">자세히 보기 →</Link></article>)}</div>;
+  return <div className={`grid gap-4 ${compact ? 'md:grid-cols-3' : 'md:grid-cols-2 xl:grid-cols-3'}`}>{services.map(service => <article key={service.slug} className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-red-200 hover:shadow-md"><div className="flex items-center justify-between"><span className="flex size-12 items-center justify-center rounded-xl bg-red-50 text-red-700 transition group-hover:bg-red-700 group-hover:text-white"><VisualIcon name={serviceIcons[service.slug] ?? 'shield'}/></span><p className="text-sm font-black text-slate-300">{service.number}</p></div><h3 className="mt-6 text-xl font-black">{service.title}</h3><p className="mt-3 text-sm leading-7 text-slate-600">{service.text}</p><Link href={`/services/${service.slug}`} className="mt-6 inline-flex min-h-11 items-center font-bold text-red-700">자세히 보기 →</Link></article>)}</div>;
 }

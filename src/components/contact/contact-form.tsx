@@ -104,7 +104,22 @@ export function ContactForm({ notice }: { notice: PrivacyNotice }) {
     </div>;
   }
   return <form noValidate onSubmit={submit} className="mt-8" aria-busy={pending}>
-    <nav aria-label="접수 진행 단계"><ol className="flex gap-1.5 sm:gap-3">{steps.map((label, index) => <li key={label} aria-current={index === step ? 'step' : undefined} className="min-w-0 flex-1"><span className={`mb-2 block h-1.5 rounded-full ${index <= step ? 'bg-red-700' : 'bg-slate-200'}`}/><span className={`text-[11px] sm:text-xs ${index === step ? 'font-bold text-red-700' : 'text-slate-500'}`}>{index + 1}. {label}</span></li>)}</ol></nav>
+    <nav aria-label="접수 진행 단계">
+      <div className="flex items-center justify-between gap-4 text-sm"><span className="font-bold text-red-700">{step + 1} / {steps.length} 단계</span><span className="font-semibold text-slate-700">{steps[step]}</span></div>
+      <ol className="mt-4 grid grid-cols-5" aria-label={`${steps.length}단계 중 ${step + 1}단계`}>
+        {steps.map((label, index) => {
+          const isComplete = index < step;
+          const isCurrent = index === step;
+          return <li key={label} aria-current={isCurrent ? 'step' : undefined} className="relative flex min-w-0 flex-col items-center">
+            {index < steps.length - 1 && <span aria-hidden="true" className={`absolute top-[1.0625rem] left-[calc(50%+1rem)] h-0.5 w-[calc(100%-2rem)] ${index < step ? 'bg-slate-950' : 'bg-slate-200'}`}/>}
+            <span className={`relative z-[1] flex size-9 items-center justify-center rounded-full text-sm font-black transition-colors ${isComplete ? 'bg-slate-950 text-white' : isCurrent ? 'bg-red-700 text-white ring-4 ring-red-100' : 'bg-slate-200 text-slate-500'}`}>
+              {isComplete ? <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" className="size-4"><path d="m4 10 4 4 8-8"/></svg> : index + 1}
+            </span>
+            <span className={`mt-2 hidden text-center text-xs leading-5 sm:block ${isCurrent ? 'font-bold text-red-700' : isComplete ? 'font-semibold text-slate-900' : 'text-slate-400'}`}>{label}</span>
+          </li>;
+        })}
+      </ol>
+    </nav>
     <section className="mt-7 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
       <p className="text-xs font-bold text-red-700">STEP {step + 1} / 5</p>
       <h2 ref={heading} tabIndex={-1} className="mt-3 text-2xl font-bold tracking-tight outline-none">{['어떤 도움이 필요하세요?', '어느 현장인가요?', '현장 상황을 알려주세요.', '어떻게 연락드릴까요?', '내용을 확인해주세요.'][step]}</h2>
@@ -132,7 +147,9 @@ export function ContactForm({ notice }: { notice: PrivacyNotice }) {
           {draft.preferredContactTime === 'CUSTOM' && field('preferredContactDetail', '희망 연락시간 직접 입력', { maxLength: 100, placeholder: '예: 평일 오후 2시 이후' })}
         </>}
         {step === 4 && <>
-          <dl className="space-y-4 rounded-xl bg-slate-50 p-5 text-sm leading-6">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+            <div className="flex items-center gap-3 border-b border-slate-200 bg-white px-5 py-4"><span className="flex size-8 items-center justify-center rounded-full bg-slate-950 text-white"><svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" className="size-4"><path d="m4 10 4 4 8-8"/></svg></span><h3 className="font-bold">접수 내용</h3></div>
+            <dl className="divide-y divide-slate-200 px-5 text-sm leading-6">
             {[
               ['문의 유형', inquiryTypes.find(item => item.value === draft.inquiryType)?.label],
               ['현장 주소', [draft.address, draft.addressDetail].filter(Boolean).join(' ')],
@@ -140,8 +157,9 @@ export function ContactForm({ notice }: { notice: PrivacyNotice }) {
               ['문의 내용', draft.description], ['공사 희망일', draft.preferredWorkDate || '미정'],
               ['고객명', draft.customerName], ['연락처', draft.phone],
               ['희망 연락시간', draft.preferredContactTime === 'CUSTOM' ? draft.preferredContactDetail : contactTimes.find(item => item.value === draft.preferredContactTime)?.label],
-            ].map(([label, value]) => <div key={label}><dt className="font-semibold text-slate-500">{label}</dt><dd className="mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{value}</dd></div>)}
-          </dl>
+            ].map(([label, value]) => <div key={label} className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-4 py-4 sm:grid-cols-[8rem_minmax(0,1fr)]"><dt className="font-semibold text-slate-500">{label}</dt><dd className="whitespace-pre-wrap break-words text-right font-medium text-slate-900 [overflow-wrap:anywhere]">{value}</dd></div>)}
+            </dl>
+          </div>
           <div className="border-t border-slate-200 pt-5"><h3 className="mb-4 text-base font-bold">개인정보 수집·이용 안내</h3><PrivacySummary notice={notice}/><Link href="/privacy" target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold underline underline-offset-4">개인정보 안내 전체 보기 (새 창)</Link></div>
           <label className={`flex min-h-16 cursor-pointer items-start gap-3 rounded-xl border p-4 ${errors.privacyAgreed ? 'border-red-600' : 'border-slate-200'}`}><input id="privacyAgreed" type="checkbox" checked={draft.privacyAgreed} onChange={event => update('privacyAgreed', event.target.checked)} aria-required="true" aria-invalid={!!errors.privacyAgreed} aria-describedby={errors.privacyAgreed ? 'privacyAgreed-error' : undefined} className="mt-1 size-5 shrink-0 accent-red-700"/><span className="text-sm font-semibold leading-6">[필수] 개인정보 수집·이용에 동의합니다.</span></label>
           {errors.privacyAgreed && <p id="privacyAgreed-error" role="alert" className="text-sm text-red-700">{errors.privacyAgreed}</p>}
