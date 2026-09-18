@@ -17,7 +17,7 @@ export default async function InquiryListPage({ searchParams }: PageProps<'/admi
   const admin = await requireAdmin();
   const parsed = adminInquiryQuerySchema.safeParse(queryObject(await searchParams));
   const query = parsed.success ? parsed.data : adminInquiryQuerySchema.parse({});
-  const data = await listAdminInquiries(query, admin.id);
+  const data = await listAdminInquiries(query, admin);
   const fromItem = data.pagination.total ? (query.page - 1) * query.pageSize + 1 : 0;
   const toItem = Math.min(query.page * query.pageSize, data.pagination.total);
   return <>
@@ -26,7 +26,7 @@ export default async function InquiryListPage({ searchParams }: PageProps<'/admi
     {!parsed.success && <p role="alert" className="mt-5 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-800">검색 조건이 올바르지 않아 기본 목록을 표시했습니다.</p>}
     <form method="get" className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
       <label className="block text-sm font-bold" htmlFor="keyword">통합 검색</label>
-      <div className="mt-2 flex flex-col gap-2 sm:flex-row"><input id="keyword" name="keyword" defaultValue={query.keyword} maxLength={100} placeholder="고객명, 전화번호, 접수번호, 업체명, 주소" className="min-h-12 flex-1 rounded-xl border border-slate-300 px-4 text-base"/><button className="min-h-12 rounded-xl bg-slate-900 px-6 font-bold text-white">검색</button></div>
+      <div className="mt-2 flex flex-col gap-2 sm:flex-row"><input id="keyword" name="keyword" defaultValue={query.keyword} maxLength={100} placeholder={admin.role==='SUPER_ADMIN'||admin.customerPiiAccess?'고객명, 전화번호, 접수번호, 업체명, 주소':'접수번호, 업체명'} className="min-h-12 flex-1 rounded-xl border border-slate-300 px-4 text-base"/><button className="min-h-12 rounded-xl bg-slate-900 px-6 font-bold text-white">검색</button></div>
       <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
         <label className="text-xs font-semibold text-slate-600">상태<select name="status" defaultValue={query.status ?? ''} className="mt-1 block min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm"><option value="">전체</option>{INQUIRY_STATUSES.map(value => <option key={value} value={value}>{statusLabel[value]}</option>)}</select></label>
         <label className="text-xs font-semibold text-slate-600">문의유형<select name="inquiryType" defaultValue={query.inquiryType ?? ''} className="mt-1 block min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm"><option value="">전체</option>{INQUIRY_TYPES.map(value => <option key={value} value={value}>{inquiryTypeLabel[value]}</option>)}</select></label>

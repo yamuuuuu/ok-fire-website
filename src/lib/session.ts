@@ -21,11 +21,11 @@ export async function currentAdmin() {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token || !/^[a-f0-9]{64}$/.test(token)) return null;
   const session = await db().adminSession.findFirst({ where: { tokenHash: tokenHash(token), expiresAt: { gt: new Date() } }, select: {
-    expiresAt: true, admin: { select: { id: true, name: true, email: true, role: true, status: true, deletedAt: true, totpEnabledAt: true } },
+    expiresAt: true, admin: { select: { id: true, name: true, email: true, role: true, status: true, deletedAt: true, totpEnabledAt: true, customerPiiAccess: true } },
   } });
   if (!session || session.expiresAt <= new Date() || session.admin.status !== 'ACTIVE' || session.admin.deletedAt) return null;
-  const { id, name, email, role, totpEnabledAt } = session.admin;
-  return { id: id.toString(), name, email, role, totpEnabled: Boolean(totpEnabledAt) };
+  const { id, name, email, role, totpEnabledAt, customerPiiAccess } = session.admin;
+  return { id: id.toString(), name, email, role, totpEnabled: Boolean(totpEnabledAt), customerPiiAccess };
 }
 export async function requireAdmin(role?: AdminRole, allowWithoutTotp = false) {
   const admin = await currentAdmin();

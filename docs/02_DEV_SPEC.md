@@ -278,5 +278,7 @@ Pagination:
 - `APP_ORIGIN`을 metadataBase, canonical과 sitemap URL 기준으로 사용합니다. 배포 도메인을 바꾸면 APP_ORIGIN도 함께 변경합니다.
 - 공개 페이지는 title·description·canonical·Open Graph를 제공하며 관리자와 완료 화면은 noindex를 유지합니다.
 - sitemap은 공개 정적 페이지, 소방 서비스 안내 페이지와 공개된 작업사례만 포함합니다. robots는 `/admin`, `/api`를 차단하고 sitemap URL을 선언합니다.
+- 개인정보 원문은 SUPER_ADMIN, 최고 관리자가 지정한 개인정보 열람 관리자, 또는 해당 접수의 담당자만 열람합니다. 그 외 관리자는 전화번호·고객명·주소를 마스킹한 목록만 볼 수 있으며 담당자 지정은 SUPER_ADMIN만 수행합니다.
+- 완료 또는 취소된 상담은 목적 달성 후 5일이 지나면 일일 작업이 개인정보와 첨부파일을 파기합니다. `CRON_SECRET`을 설정한 Vercel Cron만 이 작업을 호출합니다.
 - LocalBusiness JSON-LD는 확인된 정보만 표시합니다. 대표 전화번호·상세 주소는 운영 정보 확정 전 포함하지 않습니다.
 - `NEXT_PUBLIC_GA_MEASUREMENT_ID`가 `G-...` 형식으로 설정된 경우에만 GA4를 로드합니다. `contact_start`, `contact_submit`, `service_view`, `work_view`를 전송하며, 대표 전화번호 확정 후 전화 링크에 `phone_click`을 연결합니다.

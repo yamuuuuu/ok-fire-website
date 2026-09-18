@@ -8,6 +8,6 @@ export async function GET(request: Request) {
     const admin = await requireAdmin();
     const parsed = adminInquiryQuerySchema.safeParse(queryObject(new URL(request.url).searchParams));
     if (!parsed.success) throw new ApiError(422, 'VALIDATION_ERROR', '검색 조건을 확인해주세요.');
-    return success(await listAdminInquiries(parsed.data, admin.id));
+    return success(await listAdminInquiries(parsed.data, admin));
   } catch (error) { return failure(error); }
 }

@@ -16,7 +16,7 @@ function Empty({ children }: { children: React.ReactNode }) { return <p classNam
 export default async function InquiryDetailPage({ params }: PageProps<'/admin/inquiries/[id]'>) {
   const admin = await requireAdmin();
   let inquiry: Awaited<ReturnType<typeof getAdminInquiryDetail>>;
-  try { inquiry = await getAdminInquiryDetail((await params).id, admin.id); }
+  try { inquiry = await getAdminInquiryDetail((await params).id, admin); }
   catch (error) { if (error instanceof ApiError && error.status === 404) notFound(); throw error; }
   const address = fullAddress(inquiry.address, inquiry.addressDetail);
   const customerAttachments = inquiry.attachments.filter(item => item.attachmentType === 'CUSTOMER');

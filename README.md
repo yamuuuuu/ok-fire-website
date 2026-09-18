@@ -139,6 +139,7 @@ npm run test:integration
 | `DIRECT_URL` | migration용 직접 연결 URL. 미설정 시 DATABASE_URL 사용 | migration |
 | `APP_ORIGIN` | 허용할 정확한 origin. 경로·마지막 `/` 제외. 운영 HTTPS 필수 | 인증 |
 | `AUTH_SECRET` | 최소 64자 난수. 로그인 제한 식별자 HMAC 키 | 인증 |
+| `CRON_SECRET` | Vercel 일일 개인정보 파기 작업 인증용 난수 | 운영 cron |
 | `SEED_ADMIN_NAME` | 초기 관리자 이름 | seed |
 | `SEED_ADMIN_EMAIL` | 초기 관리자 이메일 (소문자 정규화) | seed |
 | `SEED_ADMIN_PASSWORD` | 초기 비밀번호, 10~128자 | 최초 seed 실행 |

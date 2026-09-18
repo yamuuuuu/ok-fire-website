@@ -87,6 +87,7 @@ model Admin {
   passwordHash                                 String                     @map("password_hash") @db.VarChar(255)
   totpSecret                                  String?                    @map("totp_secret") @db.VarChar(255)
   totpEnabledAt                               DateTime?                  @map("totp_enabled_at") @db.Timestamptz(3)
+  customerPiiAccess                           Boolean                     @default(false) @map("customer_pii_access")
   phone                                        String?                    @db.VarChar(20)
   role                                         AdminRole                  @default(MANAGER)
   status                                       AdminStatus                @default(ACTIVE)
@@ -372,6 +373,18 @@ model AdminActivityLog {
   @@index([adminId])
   @@index([adminId, createdAt])
   @@map("admin_activity_logs")
+}
+
+// Aggregated, cookie-less public page-view counters. No visitor identifier, IP, or user agent is stored.
+model PublicPageViewDaily {
+  day       DateTime @db.Date
+  path      String   @db.VarChar(255)
+  viewCount Int      @default(0) @map("view_count")
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@id([day, path])
+  @@index([day])
+  @@map("public_page_view_daily")
 }
 
 // Only SHA-256 hashes of 256-bit random session tokens are persisted.

@@ -14,7 +14,12 @@ function id(value: string) {
   return parsed;
 }
 
-export async function listAdminInquiries(query: AdminInquiryQuery, adminId: string) {
+type Viewer = { id: string; role: 'SUPER_ADMIN'|'MANAGER'; customerPiiAccess: boolean };
+function mayViewPii(viewer: Viewer, assignedAdminId: bigint | null) { return viewer.role === 'SUPER_ADMIN' || viewer.customerPiiAccess || assignedAdminId === BigInt(viewer.id); }
+function maskedPhone(value: string) { const digits=value.replace(/\D/g,''); return digits.length >= 7 ? `${digits.slice(0,3)}-****-${digits.slice(-4)}` : '***'; }
+function maskedName(value: string) { return value.length > 1 ? `${value.slice(0,1)}*` : '*'; }
+function maskedAddress(value: string) { return value.split(' ').slice(0,2).join(' ') || '주소 비공개'; }
+export async function listAdminInquiries(query: AdminInquiryQuery, viewer: Viewer) {
   const keyword = query.keyword?.trim();
   const digits = keyword?.replace(/\D/g, '');
   const where: Prisma.InquiryWhereInput = {
@@ -29,7 +34,7 @@ export async function listAdminInquiries(query: AdminInquiryQuery, adminId: stri
       { companyName: { contains: keyword, mode: 'insensitive' } },
       { address: { contains: keyword, mode: 'insensitive' } },
       { addressDetail: { contains: keyword, mode: 'insensitive' } },
-      ...(digits && digits.length >= 2 ? [{ phone: { contains: digits } } as const] : []),
+      ...(viewer.role === 'SUPER_ADMIN' || viewer.customerPiiAccess ? (digits && digits.length >= 2 ? [{ phone: { contains: digits } } as const] : []) : []),
     ] } : {}),
   };
   const orderBy: Prisma.InquiryOrderByWithRelationInput = { [query.sort]: query.order };
@@ -47,21 +52,21 @@ export async function listAdminInquiries(query: AdminInquiryQuery, adminId: stri
     }),
     db().admin.findMany({ where: { status: 'ACTIVE', deletedAt: null }, orderBy: { name: 'asc' }, select: { id: true, name: true } }),
   ]);
-  await db().adminActivityLog.create({ data: { adminId: BigInt(adminId), actionType: 'INQUIRY_LIST_VIEW' } });
+  await db().adminActivityLog.create({ data: { adminId: BigInt(viewer.id), actionType: 'INQUIRY_LIST_VIEW' } });
   return {
-    items: rows.map(row => ({
-      id: row.id.toString(), inquiryNumber: row.inquiryNumber, customerName: row.customerName, phone: row.phone,
-      companyName: row.companyName, address: row.address, addressDetail: row.addressDetail,
+    items: rows.map(row => { const pii=mayViewPii(viewer,row.assignedAdmin?.id ?? null); return {
+      id: row.id.toString(), inquiryNumber: row.inquiryNumber, customerName: pii ? row.customerName : maskedName(row.customerName), phone: pii ? row.phone : maskedPhone(row.phone),
+      companyName: pii ? row.companyName : null, address: pii ? row.address : maskedAddress(row.address), addressDetail: pii ? row.addressDetail : null, pii,
       inquiryType: row.inquiryType, status: row.status, createdAt: row.createdAt.toISOString(),
       assignedAdmin: row.assignedAdmin ? { id: row.assignedAdmin.id.toString(), name: row.assignedAdmin.name } : null,
       attachmentCount: row._count.inquiryAttachmentsByInquiryId,
-    })),
+    }; }),
     pagination: { page: query.page, pageSize: query.pageSize, total, totalPages: Math.ceil(total / query.pageSize) },
     admins: admins.map(admin => ({ id: admin.id.toString(), name: admin.name })),
   };
 }
 
-export async function getAdminInquiryDetail(value: string, adminId: string) {
+export async function getAdminInquiryDetail(value: string, viewer: Viewer) {
   const inquiry = await db().inquiry.findFirst({
     where: { id: id(value), deletedAt: null },
     include: {
@@ -75,8 +80,9 @@ export async function getAdminInquiryDetail(value: string, adminId: string) {
     },
   });
   if (!inquiry) throw new ApiError(404, 'NOT_FOUND', '접수를 찾을 수 없습니다.');
+  if (!mayViewPii(viewer, inquiry.assignedAdminId)) throw new ApiError(403, 'FORBIDDEN', '담당자 또는 개인정보 열람 권한이 있는 관리자만 상세를 볼 수 있습니다.');
   const availableAdmins = await db().admin.findMany({ where: { status: 'ACTIVE', deletedAt: null }, orderBy: { name: 'asc' }, select: { id: true, name: true } });
-  await db().adminActivityLog.create({ data: { adminId: BigInt(adminId), actionType: 'INQUIRY_VIEW', targetType: 'INQUIRY', targetId: inquiry.id } });
+  await db().adminActivityLog.create({ data: { adminId: BigInt(viewer.id), actionType: 'PII_VIEW', targetType: 'INQUIRY', targetId: inquiry.id } });
   return {
     id: inquiry.id.toString(), inquiryNumber: inquiry.inquiryNumber, customerName: inquiry.customerName, phone: inquiry.phone,
     companyName: inquiry.companyName, postalCode: inquiry.postalCode, address: inquiry.address, addressDetail: inquiry.addressDetail,
