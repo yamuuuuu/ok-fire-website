@@ -277,6 +277,6 @@ Pagination:
 
 - `APP_ORIGIN`을 metadataBase, canonical과 sitemap URL 기준으로 사용합니다. 배포 도메인을 바꾸면 APP_ORIGIN도 함께 변경합니다.
 - 공개 페이지는 title·description·canonical·Open Graph를 제공하며 관리자와 완료 화면은 noindex를 유지합니다.
-- sitemap은 공개 정적 페이지와 공개된 작업사례만 포함합니다. robots는 `/admin`, `/api`를 차단하고 sitemap URL을 선언합니다.
+- sitemap은 공개 정적 페이지, 소방 서비스 안내 페이지와 공개된 작업사례만 포함합니다. robots는 `/admin`, `/api`를 차단하고 sitemap URL을 선언합니다.
 - LocalBusiness JSON-LD는 확인된 정보만 표시합니다. 대표 전화번호·상세 주소는 운영 정보 확정 전 포함하지 않습니다.
 - `NEXT_PUBLIC_GA_MEASUREMENT_ID`가 `G-...` 형식으로 설정된 경우에만 GA4를 로드합니다. `contact_start`, `contact_submit`, `service_view`, `work_view`를 전송하며, 대표 전화번호 확정 후 전화 링크에 `phone_click`을 연결합니다.
