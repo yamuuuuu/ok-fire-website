@@ -2,12 +2,13 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getPrivacyNotice } from '@/lib/privacy';
 import { ContactForm } from '@/components/contact/contact-form';
+import { BrandLogo } from '@/components/public/brand-logo';
 export const metadata: Metadata = { title: '간편 상담 접수', description: '현장 상황을 알려주세요. OK소방이 확인 후 상담을 도와드립니다.', alternates: { canonical: '/contact' } };
 export const dynamic = 'force-dynamic';
 export default function ContactPage() {
   const notice = getPrivacyNotice();
   return <div className="min-h-dvh bg-slate-50">
-    <header className="border-b border-slate-200 bg-white"><div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4"><Link href="/" className="py-2 text-xl font-black">OK<span className="text-red-700">소방</span></Link><span className="text-xs font-medium text-slate-500">30년 현장 경험</span></div></header>
+    <header className="border-b border-slate-200 bg-white"><div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3"><Link href="/" aria-label="OK소방 홈"><BrandLogo priority/></Link><span className="rounded-full bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600">상담 접수</span></div></header>
     <main className="mx-auto max-w-2xl px-5 pt-9 pb-32 sm:pt-12">
       <p className="text-xs font-bold tracking-widest text-red-700">현장을 아는 전문가에게</p>
       <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">간편 상담 접수</h1>
