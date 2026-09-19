@@ -4,7 +4,7 @@ import { GuideCards } from '@/components/public/guide-cards';
 
 export const metadata: Metadata = {
   title: '소방설비 가이드',
-  description: '스프링클러 설치, 화재경보기 반복 경보, 소방점검 준비와 소방공사 견적 비교를 위한 현장 안내입니다.',
+  description: '스프링클러 설치, 화재경보기 반복 경보와 소방공사 견적 비교를 위한 현장 안내입니다.',
   alternates: { canonical: '/guides' },
 };
 
