@@ -8,6 +8,7 @@ const links = [
   { href: '/about', label: '회사소개' },
   { href: '/services', label: '서비스' },
   { href: '/works', label: '작업사례' },
+  { href: '/guides', label: '소방설비 가이드' },
   { href: '/faq', label: 'FAQ' },
 ];
 
@@ -16,13 +17,13 @@ export function PublicHeader() {
   return <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur">
     <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 lg:px-8">
       <Link href="/" aria-label="OK소방 홈"><BrandLogo priority/></Link>
-      <nav className="hidden items-center gap-7 text-sm font-bold text-slate-700 md:flex">
+      <nav className="hidden items-center gap-7 text-sm font-bold text-slate-700 lg:flex">
         {links.map(link => <Link key={link.href} href={link.href} className="hover:text-red-700">{link.label}</Link>)}
         <Link href="/contact" className="rounded-xl bg-red-700 px-4 py-3 text-white">간편 상담 접수</Link>
       </nav>
-      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="public-menu" className="min-h-11 min-w-11 rounded-lg border border-slate-300 text-lg font-bold md:hidden">{open ? '×' : '☰'}<span className="sr-only">메뉴</span></button>
+      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="public-menu" className="min-h-11 min-w-11 rounded-lg border border-slate-300 text-lg font-bold lg:hidden">{open ? '×' : '☰'}<span className="sr-only">메뉴</span></button>
     </div>
-    {open && <nav id="public-menu" className="border-t border-slate-200 bg-white px-5 py-3 md:hidden">
+    {open && <nav id="public-menu" className="border-t border-slate-200 bg-white px-5 py-3 lg:hidden">
       {links.map(link => <Link onClick={() => setOpen(false)} key={link.href} href={link.href} className="block min-h-12 py-3 font-bold">{link.label}</Link>)}
       <Link onClick={() => setOpen(false)} href="/contact" className="mb-2 mt-1 flex min-h-12 items-center justify-center rounded-xl bg-red-700 font-bold text-white">간편 상담 접수</Link>
     </nav>}
