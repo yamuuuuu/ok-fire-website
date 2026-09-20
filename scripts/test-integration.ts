@@ -156,12 +156,13 @@ async function main() {
     const publicContext = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
     const publicPage = await publicContext.newPage(); const publicErrors: string[] = []; publicPage.on('pageerror', error => publicErrors.push(error.message));
     await publicPage.goto(origin); assert.ok(await publicPage.getByRole('heading', { name: '소방설비는 경험이 중요합니다.' }).isVisible());
-    assert.ok(await publicPage.getByRole('link', { name: '간편 상담 접수' }).last().isVisible()); assert.ok(await publicPage.getByLabel('대표 전화번호 준비 중').isVisible());
+    assert.ok(await publicPage.getByRole('link', { name: '간편 상담 접수' }).last().isVisible());
+    assert.equal(await publicPage.getByRole('link', { name: /전화 상담/ }).last().getAttribute('href'), 'tel:01071248119');
     await publicPage.getByRole('button', { name: '메뉴' }).click(); assert.ok(await publicPage.locator('#public-menu').getByRole('link', { name: '작업사례' }).isVisible());
     await publicPage.screenshot({ path: join(dir, 'public-home-mobile.png'), fullPage: true }); assert.ok(await publicPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     for (const path of ['/about', '/services', '/services/fire-electric', '/works', '/faq']) { const response = await publicPage.goto(`${origin}${path}`); assert.equal(response?.status(), 200, path); assert.ok(await publicPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth), path); }
     const sitemap = await publicPage.request.get(`${origin}/sitemap.xml`); assert.equal(sitemap.status(), 200); assert.ok((await sitemap.text()).includes('/services/fire-electric'));
-    await publicPage.setViewportSize({ width: 1440, height: 1000 }); await publicPage.goto(origin); await publicPage.screenshot({ path: join(dir, 'public-home-desktop.png'), fullPage: true }); assert.ok(await publicPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+    await publicPage.setViewportSize({ width: 1440, height: 1000 }); await publicPage.goto(origin); assert.equal(await publicPage.getByRole('link', { name: /전화 상담/ }).first().getAttribute('href'), 'tel:01071248119'); await publicPage.screenshot({ path: join(dir, 'public-home-desktop.png'), fullPage: true }); assert.ok(await publicPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     assert.equal(publicErrors.length, 0, publicErrors.join('\n')); await publicContext.close(); console.log('PASS public home, menu, sticky CTA, content routes and responsive layout');
     const cleanup = spawn('npm', ['run', 'storage:cleanup'], { env, stdio: 'pipe' });
     let cleanupOutput = '';

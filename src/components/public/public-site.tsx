@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { PageViewTracker } from './analytics';
 import { BrandLogo } from './brand-logo';
+import { PhoneConsultationLink } from './phone-consultation-link';
 
 const links = [
   { href: '/about', label: '회사소개' },
@@ -46,7 +47,7 @@ export function PublicFooter() {
 
 export function MobileContactCta() {
   return <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 gap-px border-t border-slate-200 bg-slate-200 pb-[max(0px,env(safe-area-inset-bottom))] md:hidden">
-    <span aria-label="대표 전화번호 준비 중" className="flex min-h-14 items-center justify-center bg-white text-sm font-bold text-slate-400">전화 상담 준비 중</span>
+    <PhoneConsultationLink variant="mobile"/>
     <Link href="/contact" className="flex min-h-14 items-center justify-center bg-red-700 text-sm font-bold text-white">간편 상담 접수</Link>
   </div>;
 }
