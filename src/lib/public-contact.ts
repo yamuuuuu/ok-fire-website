@@ -1,2 +1,1 @@
-export const PUBLIC_PHONE_NUMBER = '010-7124-8119';
 export const PUBLIC_PHONE_HREF = 'tel:01071248119';
