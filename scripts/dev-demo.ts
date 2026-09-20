@@ -55,7 +55,7 @@ async function main() {
     SEED_ADMIN_EMAIL: 'admin@okfire.local',
     SEED_ADMIN_PASSWORD: adminPassword,
     PRIVACY_RETENTION_TEXT: '로컬 기능 테스트가 끝날 때까지 (운영정책 아님)',
-    PRIVACY_CONTACT_TEXT: '010-1234-1234',
+    PRIVACY_CONTACT_TEXT: '010-7124-8119',
     PRIVACY_POLICY_VERSION: 'local-demo-only',
     STORAGE_ENDPOINT: `http://localhost:${storagePort}`,
     STORAGE_REGION: 'us-east-1',
