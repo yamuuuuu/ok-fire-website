@@ -281,4 +281,5 @@ Pagination:
 - 개인정보 원문은 SUPER_ADMIN, 최고 관리자가 지정한 개인정보 열람 관리자, 또는 해당 접수의 담당자만 열람합니다. 그 외 관리자는 전화번호·고객명·주소를 마스킹한 목록만 볼 수 있으며 담당자 지정은 SUPER_ADMIN만 수행합니다.
 - 완료 또는 취소된 상담은 목적 달성 후 5일이 지나면 일일 작업이 개인정보와 첨부파일을 파기합니다. `CRON_SECRET`을 설정한 Vercel Cron만 이 작업을 호출합니다.
 - LocalBusiness/Organization JSON-LD에는 확인된 로고, 서울특별시 중랑구 사가정로42길 23 주소와 평일 09:00~18:00 상담시간을 표시합니다. 대표 전화번호는 구조화 데이터에 포함하지 않습니다. 서비스 상세에는 화면 내용과 일치하는 Service 및 BreadcrumbList JSON-LD를 제공합니다.
+- 홈페이지에는 `WebSite` JSON-LD로 사이트명 `OK소방`과 대체명 `okfire.kr`을 표시합니다. 180×180 PNG 아이콘과 favicon URL을 head에 선언하고, 공개 페이지의 명확한 제목·내부 링크·sitemap으로 Google sitelink 선택을 돕습니다.
 - `NEXT_PUBLIC_GA_MEASUREMENT_ID`가 `G-...` 형식으로 설정된 경우에만 GA4를 로드합니다. `contact_start`, `contact_submit`, `service_view`, `work_view`, 전화 링크 클릭의 `phone_click`을 전송합니다.
