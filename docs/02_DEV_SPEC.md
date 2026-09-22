@@ -90,6 +90,8 @@ ESTIMATE
 ETC
 ```
 
+`FIRE_INSPECTION`은 기존 관리자 기록 조회용으로만 유지합니다. 2026-09-22부터 공개 상담 유형 및 신규 접수 검증에서 제외합니다.
+
 ### InquiryStatus
 ```text
 NEW

@@ -3,7 +3,6 @@ import { z } from 'zod';
 export const inquiryTypes = [
   { value: 'FIRE_ELECTRIC', label: '소방전기', description: '감지기 · 수신기 · 유도등' },
   { value: 'FIRE_CONSTRUCTION', label: '소방설비 시공', description: '신축 · 증축 · 시설 공사' },
-  { value: 'FIRE_INSPECTION', label: '소방점검', description: '소방시설 점검 상담' },
   { value: 'REPAIR', label: '수리/보수', description: '고장 수리 · 시설 유지관리' },
   { value: 'ESTIMATE', label: '견적 문의', description: '공사 범위와 비용 상담' },
   { value: 'ETC', label: '기타', description: '어떤 서비스인지 몰라도 괜찮아요' },

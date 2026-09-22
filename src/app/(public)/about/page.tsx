@@ -22,7 +22,7 @@ export default function AboutPage() {
     <section className="bg-slate-950 text-white"><div className="mx-auto max-w-7xl px-5 py-20 sm:py-28 lg:px-8">
       <p className="text-sm font-bold tracking-widest text-red-400">ABOUT OKFIRE</p>
       <h1 className="mt-5 text-4xl font-black tracking-tight sm:text-6xl">현장을 아는 경험으로<br/>안전을 준비합니다.</h1>
-      <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-300">OK소방은 소방전기, 소방설비 시공, 소방시설 점검을 중심으로 현장의 상황을 먼저 확인하고 필요한 내용을 안내합니다.</p>
+      <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-300">OK소방은 소방전기, 소방설비 시공, 소방시설 보수를 중심으로 현장의 상황을 먼저 확인하고 필요한 내용을 안내합니다.</p>
     </div></section>
     <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8"><div className="grid gap-12 lg:grid-cols-[.9fr_1.1fr]">
       <div><p className="text-sm font-bold tracking-widest text-red-700">OUR APPROACH</p><h2 className="mt-4 text-3xl font-black">복잡한 현장도<br/>알기 쉽게 설명합니다.</h2></div>

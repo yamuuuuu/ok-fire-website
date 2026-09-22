@@ -4,7 +4,7 @@ import { GuideCards } from '@/components/public/guide-cards';
 
 export const metadata: Metadata = {
   title: '소방설비 가이드',
-  description: '스프링클러 설치, 화재경보기 반복 경보와 소방공사 견적 비교를 위한 현장 안내입니다.',
+  description: '화재감지기·화재경보기·소화전·시각경보기·프리액션밸브·방화셔터 결선·자동소화장치·화재수신기·제연설비·자동개폐기의 역할과 시공·보수 상담 안내입니다.',
   alternates: { canonical: '/guides' },
 };
 

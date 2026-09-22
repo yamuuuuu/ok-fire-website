@@ -20,6 +20,9 @@ test('rejects missing consent, whitespace fields, invalid phone and privileged f
     assert.equal(inquirySchema.safeParse({ ...valid, ...change }).success, false, JSON.stringify(change).slice(0, 80));
   }
 });
+test('public inquiry rejects the retired inspection type', () => {
+  assert.equal(inquirySchema.safeParse({ ...valid, inquiryType: 'FIRE_INSPECTION' }).success, false);
+});
 test('custom contact detail is validated even before consent; irrelevant detail is discarded', () => {
   const result = inquirySchema.safeParse({ ...valid, privacyAgreed: false, preferredContactTime: 'CUSTOM', preferredContactDetail: ' ' });
   assert.equal(result.success, false);

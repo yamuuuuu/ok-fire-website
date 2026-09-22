@@ -36,7 +36,7 @@ export function PublicFooter() {
     <div className="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:grid-cols-2 lg:grid-cols-3 lg:px-8">
       <div>
         <div className="inline-flex rounded-xl bg-white p-3"><BrandLogo large/></div>
-        <p className="mt-4 text-sm leading-7">소방전기 · 소방설비 시공 · 소방시설 점검<br/>현장을 아는 전문가와 상담하세요.</p>
+        <p className="mt-4 text-sm leading-7">소방전기 · 소방설비 시공 · 소방시설 보수<br/>현장을 아는 전문가와 상담하세요.</p>
       </div>
       <div><p className="text-sm font-bold text-white">바로가기</p><div className="mt-4 grid gap-3 text-sm">{links.map(link => <Link key={link.href} href={link.href}>{link.label}</Link>)}<Link href="/contact">간편 상담 접수</Link></div></div>
       <div><p className="text-sm font-bold text-white">상담 안내</p><address className="mt-4 text-sm leading-7 not-italic">서울특별시 중랑구 사가정로42길 23<br/>평일 09:00~18:00</address><p className="mt-2 text-sm leading-7">온라인 접수 내용을 확인한 뒤 연락드립니다.</p><Link href="/privacy" className="mt-3 inline-block text-sm underline underline-offset-4">개인정보 수집·이용 안내</Link></div>
