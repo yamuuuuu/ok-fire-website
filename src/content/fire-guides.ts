@@ -1,5 +1,6 @@
 import type { VisualIconName } from '@/components/public/visual-icon';
 import { equipmentGuides } from './equipment-guides';
+import { planningGuides } from './planning-guides';
 
 export type FireGuide = {
   slug: string;
@@ -10,9 +11,11 @@ export type FireGuide = {
   service: string;
   sections: { title: string; paragraphs: string[]; checklist?: string[] }[];
   sources: { title: string; url: string }[];
+  relatedSlugs?: string[];
 };
 
 export const fireGuides: FireGuide[] = [
+  ...planningGuides,
   ...equipmentGuides,
   {
     slug: 'sprinkler-interior-checklist',

@@ -4,7 +4,7 @@ import { GuideCards } from '@/components/public/guide-cards';
 
 export const metadata: Metadata = {
   title: '소방설비 가이드',
-  description: '화재감지기·화재경보기·소화전·시각경보기·프리액션밸브·방화셔터 결선·자동소화장치·화재수신기·제연설비·자동개폐기의 역할과 시공·보수 상담 안내입니다.',
+  description: '소방업체 선택 기준부터 소방설비 종류, 상가 인테리어 소방공사, 수리·교체와 견적 비교까지. 감지기·소화전·스프링클러 등 설비별 안내를 함께 확인하세요.',
   alternates: { canonical: '/guides' },
 };
 
@@ -12,7 +12,7 @@ export default function GuidesPage() {
   return <PublicShell><main className="bg-slate-50"><section className="mx-auto max-w-7xl px-5 py-16 sm:py-20 lg:px-8">
     <p className="text-sm font-bold tracking-widest text-red-700">FIRE SAFETY GUIDE</p>
     <h1 className="mt-4 text-4xl font-black sm:text-5xl">소방설비 가이드</h1>
-    <p className="mt-5 max-w-2xl text-base leading-8 text-slate-600">설비가 낯선 건물 관리자와 사업주를 위해, 상담 전에 알아두면 좋은 내용을 모았습니다. 현장 상황에 맞는 글부터 살펴보세요.</p>
+    <p className="mt-5 max-w-2xl text-base leading-8 text-slate-600">소방업체를 고르는 기준부터 소방설비의 역할, 설치·보수 준비까지 건물 관리자와 사업주에게 필요한 내용을 모았습니다. 공사를 처음 준비한다면 업체 선택과 설비 기초 안내부터, 특정 장치가 궁금하다면 설비별 글부터 살펴보세요.</p>
     <div className="mt-10"><GuideCards/></div>
   </section></main></PublicShell>;
 }

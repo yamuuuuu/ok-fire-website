@@ -1,5 +1,17 @@
 # 소방설비 가이드와 공개 서비스 개편 (2026-09-22)
 
+## 소방업체·소방설비 검색 고객용 콘텐츠 보강 (2026-10-02)
+
+- 업체 선택, 설비 기초, 상가·사무실 인테리어 공사 준비, 수리·교체 판단의 4개 글 추가. 기존 15개와 합계 19개.
+- 신규 경로: `/guides/choosing-fire-protection-company`, `/guides/fire-equipment-overview`, `/guides/commercial-interior-fire-planning`, `/guides/fire-equipment-repair-or-replacement`.
+- 홈의 고유 제목과 설명에 서울 소방업체·소방설비 시공·보수 내용을 반영하고, 실제 본문과 서울 상담 페이지에도 확인된 주소·상담 시간·업무 범위를 안내.
+- 홈에서 신규 글 4개, 서비스 상세에서 관련 가이드, 가이드에서 선별한 관련 글과 서비스로 연결. 전체 가이드는 목록과 사이트맵에서 접근 가능.
+- 기존 상세 템플릿의 고유 canonical·Article·BreadcrumbList JSON-LD를 사용. 사이트맵 자동 생성 목록에 신규 경로 포함.
+- 사용자 요청으로 제거한 소방점검 안내는 재추가하지 않음. 확인되지 않은 등록 자격·시공 실적·가격·후기·지역별 지점은 주장하지 않음.
+- 한국소방시설협회 업체검색과 정부24 등록 안내를 참고. 장치 역할은 기존 화재안전성능기준 참고 자료를 사용.
+- Google 사용자 중심 콘텐츠 지침: https://developers.google.com/search/docs/fundamentals/creating-helpful-content?hl=ko
+- 검색 순위 또는 색인은 보장하지 않음. 검색엔진 관리자 도구에 별도로 제출한 것으로 간주하지 않음.
+
 ## 반영 범위
 
 - 홈, 회사소개, 서비스, 푸터, 검색 설명과 JSON-LD에서 소방점검 서비스 안내 삭제.
