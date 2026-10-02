@@ -135,7 +135,7 @@ npm run test:integration
 
 | 이름 | 용도 | 필수 시점 |
 | --- | --- | --- |
-| `DATABASE_URL` | PostgreSQL 앱 연결 URL. 운영은 검증된 TLS와 연결 풀 사용 | DB 실행 |
+| `DATABASE_URL` | PostgreSQL 앱 연결 URL. 운영은 `sslmode=verify-full`로 인증서·호스트명을 검증하고 연결 풀 사용 | DB 실행 |
 | `DIRECT_URL` | migration용 직접 연결 URL. 미설정 시 DATABASE_URL 사용 | migration |
 | `APP_ORIGIN` | 허용할 정확한 origin. 경로·마지막 `/` 제외. 운영 HTTPS 필수 | 인증 |
 | `AUTH_SECRET` | 최소 64자 난수. 로그인 제한 식별자 HMAC 키 | 인증 |
