@@ -5,6 +5,7 @@ export type VisualIconName =
   | 'bolt'
   | 'calendar'
   | 'clipboard'
+  | 'chevron-right'
   | 'map-pin'
   | 'message'
   | 'search'
@@ -13,6 +14,7 @@ export type VisualIconName =
   | 'tools';
 
 const paths: Record<VisualIconName, ReactNode> = {
+  'chevron-right': <path d="m9 5 7 7-7 7"/>,
   alarm: <><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4M5 3 3 5m16-2 2 2"/></>,
   bolt: <path d="m13 2-8 12h7l-1 8 8-12h-7l1-8Z"/>,
   calendar: <><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 9h18M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01"/></>,
@@ -27,4 +29,8 @@ const paths: Record<VisualIconName, ReactNode> = {
 
 export function VisualIcon({ name, className = 'size-6' }: { name: VisualIconName; className?: string }) {
   return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>{paths[name]}</svg>;
+}
+
+export function LinkChevron({ back = false }: { back?: boolean }) {
+  return <VisualIcon name="chevron-right" className={`inline-block size-4 shrink-0 align-middle ${back ? 'mr-1.5 rotate-180' : 'ml-1.5'}`}/>;
 }

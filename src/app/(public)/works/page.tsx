@@ -1,3 +1,4 @@
+import { LinkChevron } from '@/components/public/visual-icon';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { db } from '@/lib/db';
@@ -33,7 +34,7 @@ export default async function WorksPage() {
         <span className="flex size-20 items-center justify-center rounded-3xl bg-red-50 text-red-700"><VisualIcon name="clipboard" className="size-10"/></span>
         <h2 className="mt-7 text-2xl font-black text-slate-900">작업사례를 준비하고 있습니다.</h2>
         <p className="mt-3 max-w-md text-sm leading-7 text-slate-600">현장 정보를 안전하게 정리해 순차적으로 공개할 예정입니다. 업데이트 전에도 소방설비 상담은 가능합니다.</p>
-        <Link href="/contact" className="mt-8 inline-flex min-h-14 items-center justify-center rounded-xl bg-red-700 px-6 font-bold text-white transition hover:bg-red-800">간편 상담 접수 →</Link>
+        <Link href="/contact" className="mt-8 inline-flex min-h-14 items-center justify-center rounded-xl bg-red-700 px-6 font-bold text-white transition hover:bg-red-800">간편 상담 접수<LinkChevron/></Link>
       </div>}
     </div>
   </section></main></PublicShell>;

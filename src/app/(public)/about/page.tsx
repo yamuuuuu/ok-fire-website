@@ -1,3 +1,4 @@
+import { LinkChevron } from '@/components/public/visual-icon';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PublicShell } from '@/components/public/public-site';
@@ -34,7 +35,7 @@ export default function AboutPage() {
     </div></section>
     <section className="bg-red-700"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 px-5 py-12 text-white sm:flex-row sm:items-center lg:px-8">
       <div><h2 className="text-2xl font-black">현장 상담이 필요하신가요?</h2><p className="mt-2 text-sm text-red-100">상황을 남겨주시면 확인 후 연락드립니다.</p></div>
-      <Link href="/contact" className="inline-flex min-h-14 items-center justify-center rounded-xl bg-white px-6 font-bold text-red-800">간편 상담 접수 →</Link>
+      <Link href="/contact" className="inline-flex min-h-14 items-center justify-center rounded-xl bg-white px-6 font-bold text-red-800">간편 상담 접수<LinkChevron/></Link>
     </div></section>
   </main></PublicShell>;
 }

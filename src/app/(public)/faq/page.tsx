@@ -1,3 +1,4 @@
+import { LinkChevron } from '@/components/public/visual-icon';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { db } from '@/lib/db';
@@ -36,7 +37,7 @@ export default async function FaqPage() {
     <div className="mt-12 rounded-2xl bg-slate-950 p-7 text-white">
       <h2 className="text-xl font-black">답을 찾지 못하셨나요?</h2>
       <p className="mt-3 text-sm text-slate-300">현장 상황을 남겨주시면 확인 후 안내드립니다.</p>
-      <Link href="/contact" className="mt-6 inline-flex min-h-12 items-center rounded-xl bg-red-700 px-5 text-sm font-bold">간편 상담 접수 →</Link>
+      <Link href="/contact" className="mt-6 inline-flex min-h-12 items-center rounded-xl bg-red-700 px-5 text-sm font-bold">간편 상담 접수<LinkChevron/></Link>
     </div>
   </section></main></PublicShell>;
 }

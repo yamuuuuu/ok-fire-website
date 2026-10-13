@@ -1,3 +1,4 @@
+import { LinkChevron } from '@/components/public/visual-icon';
 import Link from 'next/link';
 import { VisualIcon, type VisualIconName } from './visual-icon';
 
@@ -20,5 +21,5 @@ const serviceIcons: Record<string, VisualIconName> = {
 };
 
 export function ServiceCards({ compact = false }: { compact?: boolean }) {
-  return <div className={`grid gap-4 ${compact ? 'md:grid-cols-3' : 'md:grid-cols-2 xl:grid-cols-3'}`}>{services.map(service => <article key={service.slug} className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-red-200 hover:shadow-md"><div className="flex items-center justify-between"><span className="flex size-12 items-center justify-center rounded-xl bg-red-50 text-red-700 transition group-hover:bg-red-700 group-hover:text-white"><VisualIcon name={serviceIcons[service.slug] ?? 'shield'}/></span><p className="text-sm font-black text-slate-300">{service.number}</p></div><h3 className="mt-6 text-xl font-black">{service.title}</h3><p className="mt-3 text-sm leading-7 text-slate-600">{service.text}</p><Link href={`/services/${service.slug}`} className="mt-6 inline-flex min-h-11 items-center font-bold text-red-700">자세히 보기 →</Link></article>)}</div>;
+  return <div className={`grid gap-4 ${compact ? 'md:grid-cols-3' : 'md:grid-cols-2 xl:grid-cols-3'}`}>{services.map(service => <article key={service.slug} className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-red-200 hover:shadow-md"><div className="flex items-center justify-between"><span className="flex size-12 items-center justify-center rounded-xl bg-red-50 text-red-700 transition group-hover:bg-red-700 group-hover:text-white"><VisualIcon name={serviceIcons[service.slug] ?? 'shield'}/></span><p className="text-sm font-black text-slate-300">{service.number}</p></div><h3 className="mt-6 text-xl font-black">{service.title}</h3><p className="mt-3 text-sm leading-7 text-slate-600">{service.text}</p><Link href={`/services/${service.slug}`} className="mt-6 inline-flex min-h-11 items-center font-bold text-red-700">자세히 보기<LinkChevron/></Link></article>)}</div>;
 }

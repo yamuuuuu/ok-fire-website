@@ -1,3 +1,4 @@
+import { LinkChevron } from '@/components/public/visual-icon';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getPrivacyNotice } from '@/lib/privacy';
@@ -13,7 +14,7 @@ export default function ContactPage() {
       <p className="text-xs font-bold tracking-widest text-red-700">현장을 아는 전문가에게</p>
       <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">간편 상담 접수</h1>
       <p className="mt-4 text-sm leading-7 text-slate-600">현장 상황을 알려주세요.<br className="sm:hidden"/> 내용을 확인한 후 연락드리겠습니다.</p>
-      {notice ? <ContactForm notice={notice}/> : <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6"><h2 className="text-xl font-bold">상담 접수를 준비하고 있습니다.</h2><p className="mt-3 text-sm leading-7 text-slate-600">서비스 준비가 끝나면 온라인으로 접수하실 수 있습니다.</p><Link href="/" className="mt-6 inline-flex min-h-12 items-center font-semibold text-red-700">홈으로 돌아가기 →</Link></section>}
+      {notice ? <ContactForm notice={notice}/> : <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6"><h2 className="text-xl font-bold">상담 접수를 준비하고 있습니다.</h2><p className="mt-3 text-sm leading-7 text-slate-600">서비스 준비가 끝나면 온라인으로 접수하실 수 있습니다.</p><Link href="/" className="mt-6 inline-flex min-h-12 items-center font-semibold text-red-700">홈으로 돌아가기<LinkChevron/></Link></section>}
     </main>
   </div>;
 }
