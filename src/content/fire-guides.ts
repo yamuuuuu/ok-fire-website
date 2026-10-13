@@ -1,6 +1,7 @@
 import type { VisualIconName } from '@/components/public/visual-icon';
 import { equipmentGuides } from './equipment-guides';
 import { planningGuides } from './planning-guides';
+import { interiorGuides } from './interior-guides';
 
 export type FireGuide = {
   slug: string;
@@ -12,10 +13,12 @@ export type FireGuide = {
   sections: { title: string; paragraphs: string[]; checklist?: string[] }[];
   sources: { title: string; url: string }[];
   relatedSlugs?: string[];
+  group?: 'interior';
 };
 
 export const fireGuides: FireGuide[] = [
   ...planningGuides,
+  ...interiorGuides,
   ...equipmentGuides,
   {
     slug: 'sprinkler-interior-checklist',

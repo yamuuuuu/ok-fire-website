@@ -1,5 +1,16 @@
 # 소방설비 가이드와 공개 서비스 개편 (2026-09-22)
 
+## 업종별 인테리어 콘텐츠 (2026-10-13)
+
+- 메인 홈의 `30+`를 `30`으로 변경. 30년 현장 경험 문구는 유지.
+- 기존 `/guides/commercial-interior-fire-planning`을 인테리어 공통 준비사항으로 보강하고 URL은 유지.
+- 오피스, 상가 건물, 음식점, 필라테스, 헬스장, 편의점, 마트의 신규 글 7개 추가. 전체 가이드는 26개.
+- 신규 슬러그: `office-interior-fire-work`, `commercial-building-interior-fire-work`, `restaurant-interior-fire-work`, `pilates-interior-fire-work`, `gym-interior-fire-work`, `convenience-store-interior-fire-work`, `mart-interior-fire-work`.
+- 목록의 `#interior`에 공통 1개·업종별 7개를 모아 표시하고 홈에서 연결. 나머지 글은 `#equipment`에 표시.
+- 업종별 평면·천장·구획·주방·진열·영업 조건을 다르게 설명. 업종명만으로 법정 의무, 장치 수량, 신고 대상 등을 단정하지 않음.
+- 국가법령정보센터의 소방시설 설치 및 관리에 관한 법률 시행령, 다중이용업소 특별법 시행규칙과 법제처 체육시설업 안내를 참고. 각 글에서 출처 제공.
+- 기존 정적 상세 페이지, canonical, Article/BreadcrumbList와 사이트맵 자동 생성 구조를 사용. 검색엔진 관리자 도구 재제출은 별개.
+
 ## 소방업체·소방설비 검색 고객용 콘텐츠 보강 (2026-10-02)
 
 - 업체 선택, 설비 기초, 상가·사무실 인테리어 공사 준비, 수리·교체 판단의 4개 글 추가. 기존 15개와 합계 19개.
