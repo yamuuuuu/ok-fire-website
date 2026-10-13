@@ -247,3 +247,9 @@ S3rver는 실제 클라우드 IAM·비공개 ACL·서명 만료 정책의 완전
 - 단위 테스트: 설정 누락/비활성화, 고객 개인정보 미포함, Resend idempotency 헤더, 429/403/네트워크 실패 분류.
 - 임시 PostgreSQL 통합 테스트: 전체 migration 적용, 접수+알림 원자적 생성, 동일 접수 동시 제출, 동시 worker 단일 발송, 전송 실패 시 접수 보존, 재시도 성공, 23시간 지난 작업 재전송 차단, 삭제된 접수 전송 차단.
 - 운영 발신 도메인 `mail.okfire.kr` DNS 인증 및 네이버 수신함 실제 전달 검증은 별도 단계. 인증 전 운영 알림은 비활성화한다.
+
+## 2026-10-14 홈 도면 카드
+
+lint/typecheck/production build 통과. Chromium 1440px/390px/320px에서 가로 넘침 및 브라우저 런타임 오류 없음. 화면 진입 후 재생, 다시 보기, prefers-reduced-motion 환경에서 정적 표시 및 재생 버튼 숨김을 확인했다.
+
+이메일 운영 인증 후속 확인: mail.okfire.kr의 DKIM/SPF/MX 인증 완료. 지정 운영 수신 주소로 개인정보 없는 시험 메일 발송 후 Resend `delivered` 이벤트 확인. Production `INQUIRY_EMAIL_ENABLED=true`로 변경하여 재배포한다. 활성화 이전 접수는 소급 발송하지 않는다.
