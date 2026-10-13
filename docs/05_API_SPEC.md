@@ -478,3 +478,7 @@ Vercel의 플랫폼 IP 헤더만 신뢰하고 다른 환경에서는 공통 loca
 ### GET /api/admin/inquiries/{id}/timeline
 
 상태 이력, 담당자 이력, 삭제되지 않은 메모를 시간 역순으로 반환합니다. 모든 ID와 시간은 문자열/ISO 8601입니다.
+
+## POST /api/admin/notifications/retry (2026-10-14)
+
+최고 관리자 및 OTP 인증, 동일 Origin 필요. 요청 본문 없음. 영구 실패 상태를 재시도 대기로 바꾸고 실행 가능한 알림 최대 5개를 처리한다. 성공 응답 data.processed에 처리 수를 반환한다. 23시간/8회 제한을 유지하며 REVIEW는 재전송하지 않는다. 관리자 활동 로그에 EMAIL_RETRY 기록. 접수 POST는 저장 후 after 콜백으로 알림 전송을 시도하며 고객 응답 형식은 유지한다. 기존 인증된 개인정보 파기 Cron도 대기 알림 최대 5개를 처리한다.

@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { getEnv } from '@/lib/env';
 import { ApiError } from '@/lib/http';
 import type { InquiryInput } from '@/validations/inquiry';
+import { emailConfig, inquiryEmail } from '@/lib/inquiry-email';
 
 export async function createInquiry(input: InquiryInput, requestKey: string) {
   const submissionKeyHash = createHash('sha256').update(requestKey).digest('hex');
@@ -31,7 +32,9 @@ export async function createInquiry(input: InquiryInput, requestKey: string) {
       inquiryNumber: `OK-${counter.day}-${String(counter.value).padStart(4, '0')}`,
       submissionKeyHash, submissionPayloadHash, status: 'NEW', source: 'WEB', privacyAgreedAt: new Date(),
       inquiryStatusHistoriesByInquiryId: { create: { previousStatus: null, newStatus: 'NEW', changedByAdminId: null } },
-    }, select: { id: true, inquiryNumber: true, createdAt: true } });
+    }, select: { id: true, inquiryNumber: true, inquiryType: true, createdAt: true } });
+    const mail = emailConfig();
+    if (mail) await tx.inquiryEmail.create({ data: { inquiryId: inquiry.id, payload: inquiryEmail(inquiry, mail) } });
     return { id: inquiry.id.toString(), inquiryNumber: inquiry.inquiryNumber, status: 'NEW' as const, createdAt: inquiry.createdAt.toISOString() };
   }, { maxWait: 10000, timeout: 10000 });
 }

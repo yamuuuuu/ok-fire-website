@@ -116,6 +116,7 @@ model Admin {
 }
 
 model Inquiry {
+  notification InquiryEmail?
   id                                    BigInt                     @id @default(autoincrement())
   inquiryNumber                         String                     @unique @map("inquiry_number") @db.VarChar(30)
   submissionKeyHash                     String?                    @unique @map("submission_key_hash") @db.VarChar(64)
@@ -157,6 +158,24 @@ model Inquiry {
   @@index([status, createdAt])
   @@index([assignedAdminId, status])
   @@map("inquiries")
+}
+
+model InquiryEmail {
+  id String @id @default(uuid()) @db.Uuid
+  inquiryId BigInt @unique @map("inquiry_id")
+  inquiry Inquiry @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  payload Json
+  status String @default("PENDING") @db.VarChar(20)
+  attempts Int @default(0)
+  firstAttemptAt DateTime? @map("first_attempt_at") @db.Timestamptz(3)
+  nextAttemptAt DateTime @default(now()) @map("next_attempt_at") @db.Timestamptz(3)
+  leaseUntil DateTime? @map("lease_until") @db.Timestamptz(3)
+  sentAt DateTime? @map("sent_at") @db.Timestamptz(3)
+  providerId String? @map("provider_id") @db.VarChar(255)
+  errorCode String? @map("error_code") @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  @@index([status, nextAttemptAt])
+  @@map("inquiry_emails")
 }
 
 model InquiryAttachment {

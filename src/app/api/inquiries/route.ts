@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import { after } from 'next/server';
+import { db } from '@/lib/db';
+import { dispatchInquiryEmails } from '@/services/inquiry-email-worker';
 import { ApiError, failure, readJson, requireSameOrigin, success } from '@/lib/http';
 import { getEnv } from '@/lib/env';
 import { getPrivacyNotice } from '@/lib/privacy';
@@ -19,6 +22,10 @@ export async function POST(request: Request) {
     if (!parsed.success) throw new ApiError(422, 'VALIDATION_ERROR', '입력값을 확인해주세요.', inquiryErrors(parsed.error.issues));
     if (parsed.data.privacyPolicyVersion !== notice.version) throw new ApiError(409, 'PRIVACY_POLICY_UPDATED', '개인정보 안내가 변경되었습니다. 페이지를 새로 열어 확인해주세요.');
     const data = await createInquiry(parsed.data, key.data);
+    after(async () => {
+      try { await dispatchInquiryEmails(db(), { inquiryId: BigInt(data.id) }); }
+      catch { console.error('inquiry_email_dispatch_failed'); }
+    });
     const response = success(data, 201);
     response.cookies.set(RECEIPT_COOKIE, signReceipt(data.inquiryNumber, getEnv().AUTH_SECRET), {
       httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: RECEIPT_SECONDS,
