@@ -28,7 +28,8 @@ export function FirePlan() {
           {[30,70,110,150,190,230,270,310].map(y => <path key={`y${y}`} d={`M20 ${y}H460`}/>)}
         </g>
         <g fill="#142237" stroke="#8493a7" strokeWidth="3" strokeLinejoin="round">
-          <path d="M55 55H425V275H280M230 275H55Z"/>
+          <rect x="55" y="55" width="370" height="220" stroke="none"/>
+          <path d="M55 275V55H425V275H280M230 275H55" fill="none"/>
           <path d="M55 190H160M190 190H300M330 190H425M205 55V150M205 175V190M315 55V140M315 165V190" fill="none"/>
         </g>
         <g stroke="#63758d" strokeWidth="1" fill="none">
