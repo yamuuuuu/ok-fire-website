@@ -285,3 +285,7 @@ Pagination:
 - LocalBusiness/Organization JSON-LD에는 확인된 로고, 서울특별시 중랑구 사가정로42길 23 주소와 평일 09:00~18:00 상담시간을 표시합니다. 대표 전화번호는 구조화 데이터에 포함하지 않습니다. 서비스 상세에는 화면 내용과 일치하는 Service 및 BreadcrumbList JSON-LD를 제공합니다.
 - 홈페이지에는 `WebSite` JSON-LD로 사이트명 `OK소방`과 대체명 `okfire.kr`을 표시합니다. 180×180 PNG 아이콘과 favicon URL을 head에 선언하고, 공개 페이지의 명확한 제목·내부 링크·sitemap으로 Google sitelink 선택을 돕습니다.
 - `NEXT_PUBLIC_GA_MEASUREMENT_ID`가 `G-...` 형식으로 설정된 경우에만 GA4를 로드합니다. `contact_start`, `contact_submit`, `service_view`, `work_view`, 전화 링크 클릭의 `phone_click`을 전송합니다.
+
+## 접수별 단일 방문 일정
+
+방문 등록은 접수 행 잠금과 visits_one_per_inquiry 부분 유니크 인덱스로 동시 요청 중복을 막는다. 수정은 기존 방문 ID의 PATCH이며 날짜·시간·담당자·메모를 변경한다. 날짜는 PostgreSQL DATE에 UTC 자정 값으로 전달해 날짜 밀림을 방지하고, 기존 날짜는 임의로 변경하지 않는다.

@@ -388,3 +388,7 @@ idempotency 해시는 접수 레코드와 함께 유지합니다. 추후 실제 
 ## inquiry_emails (2026-10-14)
 
 Inquiry와 1:0..1 관계인 발송 대기 테이블. UUID PK, inquiry_id UNIQUE FK, 개인정보가 제외된 고정 JSON payload, 상태(PENDING/PROCESSING/SENT/FAILED/REVIEW/CANCELED), 시도 횟수, 최초 시도 시각, 다음 시도 시각, 잠금 만료, 발송 시각, provider_id, 비민감 오류 코드, 생성 시각. 상태·다음 시도 시각 복합 인덱스. 접수 생성 트랜잭션에서 생성하고 전송 시 비교 후 갱신으로 중복 작업을 방지한다.
+
+## 접수별 단일 방문 일정
+
+visits(inquiry_id)에 deleted_at IS NULL 조건의 부분 UNIQUE 인덱스 visits_one_per_inquiry를 SQL migration으로 관리한다. 중복 정리 시 VISIT_DUPLICATE_ARCHIVED 활동 로그를 남기고 원본 방문 행은 보존한다.

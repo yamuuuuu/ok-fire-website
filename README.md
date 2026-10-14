@@ -259,3 +259,9 @@ npm run storage:cleanup -- --apply
 무료 한도에 도달하면 유료로 자동 전환하지 않습니다. 수신함/스팸함을 확인하고 Resend 대시보드에서 실제 전달 상태와 현재 무료 한도를 확인하세요. 무료 요금제 변경/유료 전환은 운영자 확인 없이 수행하지 않습니다.
 
 검증: `npm test`, `NODE_OPTIONS=--conditions=react-server npx tsx scripts/test-inquiry-email.ts`, `npm run lint`, `npm run typecheck`, `npm run build`. 이메일 통합 검증은 임시 PostgreSQL과 가짜 전송 함수를 사용하므로 실제 메일을 보내거나 운영 접수를 만들지 않습니다.
+
+## 방문 일정 중복 방지
+
+접수별 일정 한 건만 등록하며 등록 후 일정 수정 / 방문 완료를 제공합니다. `npm run db:deploy`로 `20261016000000_single_visit_per_inquiry`를 적용하면 기존 중복은 최신 수정 한 건을 유지하고 나머지는 Soft Delete로 보존합니다. 사진 저장소와 무관한 마이그레이션입니다.
+
+검증: `NODE_OPTIONS=--conditions=react-server npx tsx scripts/test-visit-schedule.ts` (임시 PostgreSQL, 운영 데이터 미사용). 동시 등록, 수정·값 비우기, 완료, DB 제약, 기존 중복 정리를 확인합니다.

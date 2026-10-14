@@ -257,6 +257,7 @@ model InquiryAssignmentHistory {
   @@map("inquiry_assignment_histories")
 }
 
+// Active visits are unique per inquiry via the SQL partial index visits_one_per_inquiry.
 model Visit {
   id               BigInt      @id @default(autoincrement())
   inquiryId        BigInt      @map("inquiry_id")
