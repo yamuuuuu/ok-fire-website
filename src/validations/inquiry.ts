@@ -8,8 +8,8 @@ export const inquiryTypes = [
   { value: 'ETC', label: '기타', description: '어떤 서비스인지 몰라도 괜찮아요' },
 ] as const;
 export const contactTimes = [
-  { value: 'ANYTIME', label: '언제든지' }, { value: 'MORNING', label: '오전' },
-  { value: 'AFTERNOON', label: '오후' }, { value: 'CUSTOM', label: '직접 입력' },
+  { value: 'ANYTIME', label: '언제든지' }, { value: 'MORNING', label: '오전 (09시~11시59분)' },
+  { value: 'AFTERNOON', label: '오후 (12시~18시)' }, { value: 'CUSTOM', label: '직접 입력' },
 ] as const;
 const optionalText = (max: number) => z.string().trim().max(max, `최대 ${max}자까지 입력해주세요.`).nullish().transform(value => value || null);
 export const inquirySchema = z.object({

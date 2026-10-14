@@ -11,7 +11,7 @@ export const inquiryTypeLabel: Record<(typeof INQUIRY_TYPES)[number], string> = 
   REPAIR: '수리/보수', ESTIMATE: '견적 문의', ETC: '기타',
 };
 export const preferredContactLabel: Record<string, string> = {
-  ANYTIME: '언제든 가능', MORNING: '오전', AFTERNOON: '오후', CUSTOM: '직접 입력',
+  ANYTIME: '언제든 가능', MORNING: '오전 (09시~11시59분)', AFTERNOON: '오후 (12시~18시)', CUSTOM: '직접 입력',
 };
 
 const koreaDateTime = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
