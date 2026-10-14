@@ -14,10 +14,10 @@ export function DesktopAdminNavigation({ superAdmin }: { superAdmin: boolean }) 
   </nav>;
 }
 
-export function MobileAdminNavigation() {
+export function MobileAdminNavigation({ superAdmin }: { superAdmin: boolean }) {
   const pathname = usePathname();
+  const items = [...baseItems, superAdmin ? { href: '/admin/settings', label: '설정' } : { href: '/admin/faq', label: 'FAQ' }];
   return <nav aria-label="모바일 관리자 메뉴" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-slate-200 bg-white px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden">
-    {baseItems.slice(0, 3).map(item => <Link key={item.href} href={item.href} aria-current={active(pathname, item.href) ? 'page' : undefined} className={`flex min-h-14 items-center justify-center rounded-xl text-sm font-bold ${active(pathname, item.href) ? 'bg-red-50 text-red-800' : 'text-slate-600'}`}>{item.label}</Link>)}
-    <Link href="/admin/works" aria-current={active(pathname, '/admin/works') ? 'page' : undefined} className={`flex min-h-14 items-center justify-center rounded-xl text-sm font-bold ${active(pathname, '/admin/works') ? 'bg-red-50 text-red-800' : 'text-slate-600'}`}>사례</Link>
+    {items.map(item => <Link key={item.href} href={item.href} aria-current={active(pathname, item.href) ? 'page' : undefined} className={`flex min-h-14 items-center justify-center rounded-xl text-sm font-bold ${active(pathname, item.href) ? 'bg-red-50 text-red-800' : 'text-slate-600'}`}>{item.label}</Link>)}
   </nav>;
 }
